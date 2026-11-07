@@ -40,6 +40,8 @@ export function createMirrorStore(config: MirrorConfig, fetchImpl: typeof fetch 
     : undefined
   let masterDownloads: Record<string, number> = {}
   let pendingDownloads: Record<string, number> = {}
+  // One download per address and package between flushes, so a loop cannot buy popularity.
+  let counted = new Set<string>()
   let queue: Promise<unknown> = Promise.resolve()
 
   const packagePath = (sha256: string) => path.join(packagesDir, `${sha256}.aipgx`)
@@ -127,9 +129,12 @@ export function createMirrorStore(config: MirrorConfig, fetchImpl: typeof fetch 
     return state.seq
   }
 
-  function countDownload(sha256: string) {
+  function countDownload(sha256: string, client = '') {
     const release = Object.values(state.releases).find((r) => r.release.sha256 === sha256)
     if (!release) return
+    const key = `${client}|${sha256}`
+    if (counted.has(key) || counted.size > 200_000) return
+    counted.add(key)
     pendingDownloads[release.release.id] = (pendingDownloads[release.release.id] ?? 0) + 1
   }
 
@@ -137,6 +142,7 @@ export function createMirrorStore(config: MirrorConfig, fetchImpl: typeof fetch 
     if (Object.keys(pendingDownloads).length === 0) return
     const counts = pendingDownloads
     pendingDownloads = {}
+    counted = new Set()
     try {
       await masterRequest('POST', '/v1/mirror/stats', JSON.stringify({ counts }))
       for (const [id, n] of Object.entries(counts))

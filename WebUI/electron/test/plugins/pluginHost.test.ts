@@ -18,8 +18,17 @@ import {
   type SignedRelease,
 } from '@marketplace-shared'
 import { createPluginHost, type PublisherTokenStore } from '../../plugins/pluginHost'
-import { entriesFromFolder, writeEntries, zipEntries } from '../../plugins/packageIO'
-import type { MarketplaceServers } from '../../adapters/marketplace/registryClient'
+import AdmZip from 'adm-zip'
+import {
+  entriesFromFolder,
+  entriesFromZip,
+  writeEntries,
+  zipEntries,
+} from '../../plugins/packageIO'
+import {
+  loadMarketplaceServers,
+  type MarketplaceServers,
+} from '../../adapters/marketplace/registryClient'
 
 const examples = path.resolve(__dirname, '../../../../marketplace-server/examples')
 const keys = generateSigningKeys()
@@ -316,5 +325,48 @@ describe('writeEntries', () => {
     expect(() =>
       writeEntries([{ path: '../escape.txt', size: 1, read: () => data }], root),
     ).toThrow(/Unsafe/)
+  })
+
+  it('refuses plugin ids from IPC that are not plugin ids', async () => {
+    const keep = path.join(root, 'keep.txt')
+    fs.writeFileSync(keep, 'x')
+    const plugins = host(fakeNetwork({ published: [] }))
+    for (const id of ['..', '.', '../..', 'a/b', ''])
+      await expect(plugins.uninstall(id)).rejects.toThrow(/Invalid plugin id/)
+    await expect(plugins.setEnabled('..', true)).rejects.toThrow(/Invalid plugin id/)
+    expect(fs.existsSync(keep)).toBe(true)
+  })
+
+  it('reads zips from other tools but refuses ones a second parser could read differently', () => {
+    const other = new AdmZip()
+    other.addFile('aipg-plugin.json', Buffer.from('{}'))
+    expect(entriesFromZip(new Uint8Array(other.toBuffer())).map((e) => e.path)).toEqual([
+      'aipg-plugin.json',
+    ])
+
+    const hidden = new AdmZip()
+    hidden.addFile('presets/evil.json', Buffer.from('{"evil":true}'))
+    const polyglot = new Uint8Array([
+      ...new Uint8Array(hidden.toBuffer()).subarray(0, 60),
+      ...packExample('writing-coach'),
+    ])
+    expect(() => entriesFromZip(polyglot)).toThrow(/Not a valid package zip/)
+  })
+})
+
+describe('server config', () => {
+  it('drops a master URL that would send the publisher token in clear text', () => {
+    const pem = keys.publicKeyPem
+    const write = (masterUrl: string) =>
+      fs.writeFileSync(
+        path.join(root, 'marketplace.json'),
+        JSON.stringify({ mirrors: [MIRROR], masterUrl, publicKeyPem: pem }),
+      )
+    write('http://master.example.com')
+    expect(loadMarketplaceServers(root)?.masterUrl).toBe('')
+    write('http://127.0.0.1:7480')
+    expect(loadMarketplaceServers(root)?.masterUrl).toBe('http://127.0.0.1:7480')
+    write('https://master.example.com/')
+    expect(loadMarketplaceServers(root)?.masterUrl).toBe('https://master.example.com')
   })
 })

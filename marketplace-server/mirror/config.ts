@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import { trustProxyFromEnv } from '../master/config.ts'
 
 export type MirrorConfig = {
   host: string
@@ -11,6 +12,7 @@ export type MirrorConfig = {
   masterPublicKeyPem: string
   catchUpIntervalMs: number
   statsFlushIntervalMs: number
+  trustProxy?: string | boolean
 }
 
 export function mirrorConfigFromEnv(env: NodeJS.ProcessEnv = process.env): MirrorConfig {
@@ -37,5 +39,6 @@ export function mirrorConfigFromEnv(env: NodeJS.ProcessEnv = process.env): Mirro
     masterPublicKeyPem,
     catchUpIntervalMs: Number(env.CATCHUP_INTERVAL_SECONDS ?? 600) * 1000,
     statsFlushIntervalMs: Number(env.STATS_FLUSH_SECONDS ?? 300) * 1000,
+    trustProxy: trustProxyFromEnv(env.TRUST_PROXY),
   }
 }

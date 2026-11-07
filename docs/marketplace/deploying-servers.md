@@ -71,14 +71,20 @@ Then sign in at `https://master.marketplace.example.com/admin`.
 
 **Settings in `master.env`:**
 
-| Variable                       | Default                 | Meaning                                                                                                                            |
-| ------------------------------ | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `DOMAIN`                       | —                       | Host name Caddy serves and certifies.                                                                                              |
-| `MASTER_PUBLIC_URL`            | `http://localhost:8080` | The URL publishers, mirrors and apps use. Must be `https://` in production; secure cookies follow from it.                         |
-| `REGISTRATION`                 | `open`                  | `open`: anyone can sign up at `/register` and get a publisher token. `invite`: only admins create publishers (Admin → Publishers). |
-| `MAX_UPLOAD_MB`                | `20`                    | Upload size limit. Packages can't unpack beyond 20 MB regardless.                                                                  |
-| `REPLICATION_INTERVAL_SECONDS` | `15`                    | How often failed pushes are retried. Approvals push at once.                                                                       |
-| `LOG_LEVEL`                    | `info`                  | `debug`, `info`, `warn`, `error`.                                                                                                  |
+| Variable                       | Default                 | Meaning                                                                                                                                          |
+| ------------------------------ | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `DOMAIN`                       | —                       | Host name Caddy serves and certifies.                                                                                                            |
+| `MASTER_PUBLIC_URL`            | `http://localhost:8080` | The URL publishers, mirrors and apps use. Must be `https://` in production; secure cookies follow from it.                                       |
+| `REGISTRATION`                 | `open`                  | `open`: anyone can sign up at `/register` and get a publisher token. `invite`: only admins create publishers (Admin → Publishers).               |
+| `MAX_UPLOAD_MB`                | `20`                    | Upload size limit. Packages can't unpack beyond 20 MB regardless.                                                                                |
+| `REPLICATION_INTERVAL_SECONDS` | `15`                    | How often failed pushes are retried. Approvals push at once.                                                                                     |
+| `LOG_LEVEL`                    | `info`                  | `debug`, `info`, `warn`, `error`.                                                                                                                |
+| `TRUST_PROXY`                  | `loopback,uniquelocal`  | Addresses allowed to set `X-Forwarded-For` (your reverse proxy). Rate limits key on the client address it reports. `false` to ignore the header. |
+
+**Built-in limits.** Sign-in: 10 attempts per minute per address. Registration: 5 per hour per
+address. Uploads: 30 per hour and 10 waiting for review per publisher. All three answer HTTP 429
+when exceeded. Behind a proxy that is not on a private or loopback address, set `TRUST_PROXY` to
+its address, or every client shares one limit.
 
 **The signing key** is created on first start in the data volume (`/data/keys/`).
 `master-ed25519.pem` is the private key: **it never leaves the master, and it must be backed
@@ -226,3 +232,4 @@ HTTPS and a fixed password; never expose it.
 | Mirror stuck behind the master's seq                              | It can't fetch packages from `MASTER_URL`. Check DNS and HTTPS from the mirror to the master.                                                            |
 | Upload refused with `policy/namespace`                            | The plugin id doesn't start with the uploader's publisher id.                                                                                            |
 | Caddy has no certificate                                          | DNS doesn't point at the VM yet, or ports 80/443 are blocked.                                                                                            |
+| Everyone gets "Too many attempts" or HTTP 429 together            | The master sees the proxy's address instead of the client's: set `TRUST_PROXY` to the proxy address.                                                     |

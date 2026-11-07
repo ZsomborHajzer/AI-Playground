@@ -1,6 +1,6 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { HMAC_HEADERS, verifyHmac } from '../shared/index.ts'
-import { bearerToken, publisherForToken } from './auth.ts'
+import { bearerToken, publisherForToken, rateLimiter } from './auth.ts'
 import type { MasterConfig } from './config.ts'
 import { httpError, type MasterCore } from './core.ts'
 import type { PublisherRow } from './db.ts'
@@ -20,8 +20,12 @@ function requirePublisher(db: Db, request: FastifyRequest): PublisherRow {
   return owner
 }
 
+// Signatures seen inside the HMAC clock window; a captured POST cannot be sent twice.
+const seenSignatures = new Map<string, number>()
+
 function requireMirror(core: MasterCore, request: FastifyRequest) {
   const id = request.headers[HMAC_HEADERS.mirror] as string | undefined
+  const signature = request.headers[HMAC_HEADERS.signature] as string | undefined
   const mirror = id ? core.mirror(id) : undefined
   const ok =
     mirror &&
@@ -31,9 +35,15 @@ function requireMirror(core: MasterCore, request: FastifyRequest) {
       request.url,
       request.rawBody ?? '',
       request.headers[HMAC_HEADERS.timestamp] as string | undefined,
-      request.headers[HMAC_HEADERS.signature] as string | undefined,
+      signature,
     )
-  if (!ok || !mirror) throw httpError(401, 'Mirror authentication failed')
+  if (!ok || !mirror || !signature) throw httpError(401, 'Mirror authentication failed')
+  if (request.method === 'POST') {
+    const now = Date.now()
+    for (const [sig, at] of seenSignatures) if (now - at > 11 * 60_000) seenSignatures.delete(sig)
+    if (seenSignatures.has(signature)) throw httpError(401, 'Mirror request was replayed')
+    seenSignatures.set(signature, now)
+  }
   return mirror
 }
 
@@ -43,6 +53,12 @@ export function registerApiRoutes(
   config: MasterConfig,
   db: Db,
 ) {
+  const registerLimiter = rateLimiter(5, 60 * 60_000)
+  const uploadLimiter = rateLimiter(30, 60 * 60_000)
+  const checkRegisterRate = (ip: string) => {
+    if (!registerLimiter(ip)) throw httpError(429, 'Too many registrations from this address')
+  }
+
   app.get('/healthz', async () => ({ ok: true, seq: core.currentSeq(), keyId: core.keys.keyId }))
 
   app.get('/v1/public-key', async () => ({
@@ -56,6 +72,7 @@ export function registerApiRoutes(
     if (config.registration !== 'open') {
       throw httpError(403, 'Registration is invite-only; ask a marketplace admin for a token')
     }
+    checkRegisterRate(request.ip)
     const body = (request.body ?? {}) as { id: string; name: string; email: string }
     const { publisher, token } = core.registerPublisher(body)
     reply.code(201)
@@ -69,6 +86,7 @@ export function registerApiRoutes(
 
   app.post('/v1/submissions', async (request, reply) => {
     const owner = requirePublisher(db, request)
+    if (!uploadLimiter(owner.id)) throw httpError(429, 'Too many uploads; try again in an hour')
     const file = await request.file()
     if (!file) throw httpError(400, 'Send the .aipgx as a multipart field named "package"')
     const bytes = await file.toBuffer()
@@ -144,6 +162,7 @@ export function registerApiRoutes(
     reply.type('text/html')
     if (config.registration !== 'open') throw httpError(403, 'Registration is invite-only')
     try {
+      checkRegisterRate(request.ip)
       const { publisher, token } = core.registerPublisher(
         (request.body ?? {}) as { id: string; name: string; email: string },
       )

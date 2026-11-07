@@ -17,6 +17,8 @@ declare module 'fastify' {
 }
 
 const SORTS = ['popular', 'recent', 'name'] as const
+const REPLICATE_BODY_LIMIT = 64 * 1024 * 1024
+const HMAC_MAX_SKEW_MS = 5 * 60 * 1000
 
 export async function buildMirrorApp(
   config: MirrorConfig,
@@ -25,8 +27,8 @@ export async function buildMirrorApp(
   const store = createMirrorStore(config, options.fetchImpl)
   const app = Fastify({
     logger: options.logger ?? false,
-    bodyLimit: 64 * 1024 * 1024,
-    trustProxy: true,
+    bodyLimit: 64 * 1024,
+    trustProxy: config.trustProxy ?? 'loopback,uniquelocal',
   })
   const masterKeyId = keyId(config.masterPublicKeyPem)
 
@@ -56,26 +58,42 @@ export async function buildMirrorApp(
 
   // ── from the master ──────────────────────────────────────────────────────
 
-  app.post('/v1/replicate', async (request, reply) => {
-    const ok =
-      request.headers[HMAC_HEADERS.mirror] === config.mirrorId &&
-      verifyHmac(
-        config.mirrorSecret,
-        'POST',
-        request.url,
-        request.rawBody ?? '',
-        request.headers[HMAC_HEADERS.timestamp] as string | undefined,
-        request.headers[HMAC_HEADERS.signature] as string | undefined,
-      )
-    if (!ok) return reply.code(401).send({ error: 'Replication authentication failed' })
-    try {
-      const seq = await store.applyBatch(request.body as ReplicationBatch)
-      return { seq }
-    } catch (e) {
-      request.log.warn(`replication batch refused: ${(e as Error).message}`)
-      return reply.code(422).send({ error: (e as Error).message })
-    }
-  })
+  // Refuse obvious strangers before reading a body of up to 64 MB; the HMAC is checked after.
+  const fromMaster = (headers: Record<string, unknown>) =>
+    headers[HMAC_HEADERS.mirror] === config.mirrorId &&
+    typeof headers[HMAC_HEADERS.signature] === 'string' &&
+    Math.abs(Date.now() - Number(headers[HMAC_HEADERS.timestamp])) <= HMAC_MAX_SKEW_MS
+
+  app.post(
+    '/v1/replicate',
+    {
+      bodyLimit: REPLICATE_BODY_LIMIT,
+      onRequest: async (request, reply) => {
+        if (!fromMaster(request.headers))
+          return reply.code(401).send({ error: 'Replication authentication failed' })
+      },
+    },
+    async (request, reply) => {
+      const ok =
+        request.headers[HMAC_HEADERS.mirror] === config.mirrorId &&
+        verifyHmac(
+          config.mirrorSecret,
+          'POST',
+          request.url,
+          request.rawBody ?? '',
+          request.headers[HMAC_HEADERS.timestamp] as string | undefined,
+          request.headers[HMAC_HEADERS.signature] as string | undefined,
+        )
+      if (!ok) return reply.code(401).send({ error: 'Replication authentication failed' })
+      try {
+        const seq = await store.applyBatch(request.body as ReplicationBatch)
+        return { seq }
+      } catch (e) {
+        request.log.warn(`replication batch refused: ${(e as Error).message}`)
+        return reply.code(422).send({ error: (e as Error).message })
+      }
+    },
+  )
 
   // ── public catalog ───────────────────────────────────────────────────────
 
@@ -160,7 +178,7 @@ export async function buildMirrorApp(
     if (store.isRevoked(release.release.id, release.release.version)) {
       return reply.code(410).send({ error: 'This version was revoked' })
     }
-    store.countDownload(request.params.sha256)
+    store.countDownload(request.params.sha256, request.ip)
     reply
       .header('content-type', 'application/zip')
       .header('cache-control', 'public, max-age=31536000, immutable')

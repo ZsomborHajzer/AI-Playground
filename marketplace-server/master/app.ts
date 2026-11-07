@@ -15,7 +15,26 @@ export async function buildMasterApp(
   const db = openDatabase(config.dataDir)
   const keys = loadOrCreateKeys(config.dataDir)
   const core = createMasterCore({ db, keys, dataDir: config.dataDir })
-  const app = Fastify({ logger, bodyLimit: 2 * 1024 * 1024, trustProxy: true })
+  const app = Fastify({
+    logger,
+    bodyLimit: 2 * 1024 * 1024,
+    trustProxy: config.trustProxy ?? 'loopback,uniquelocal',
+  })
+
+  app.addHook('onSend', async (request, reply, payload) => {
+    reply.header('x-content-type-options', 'nosniff')
+    reply.header('referrer-policy', 'no-referrer')
+    reply.header('x-frame-options', 'DENY')
+    if (String(reply.getHeader('content-type') ?? '').startsWith('text/html')) {
+      reply.header(
+        'content-security-policy',
+        "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'",
+      )
+    }
+    if (request.url.startsWith('/admin') || request.url.startsWith('/register'))
+      reply.header('cache-control', 'no-store')
+    return payload
+  })
 
   // Keep the exact bytes of JSON bodies: mirror requests are HMAC-signed over them.
   app.removeContentTypeParser('application/json')

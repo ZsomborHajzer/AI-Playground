@@ -211,16 +211,71 @@ describe('mirror endpoints', () => {
   it('accumulates download stats sent by mirrors', async () => {
     const { mirror, secret } = core.addMirror({ name: 'eu', url: 'http://mirror.test' })
     const body = JSON.stringify({ counts: { 'aipg.writing-coach': 3, bogus: -5 } })
+    const headers = {
+      'content-type': 'application/json',
+      ...hmacHeaders(mirror.id, secret, 'POST', '/v1/mirror/stats', body),
+    }
     const res = await app.inject({
       method: 'POST',
       url: '/v1/mirror/stats',
       payload: body,
-      headers: {
-        'content-type': 'application/json',
-        ...hmacHeaders(mirror.id, secret, 'POST', '/v1/mirror/stats', body),
-      },
+      headers,
     })
     expect(res.statusCode).toBe(200)
     expect(core.downloads()).toEqual({ 'aipg.writing-coach': 3 })
+    const replay = await app.inject({
+      method: 'POST',
+      url: '/v1/mirror/stats',
+      payload: body,
+      headers,
+    })
+    expect(replay.statusCode).toBe(401)
+    expect(core.downloads()).toEqual({ 'aipg.writing-coach': 3 })
+  })
+})
+
+describe('hardening', () => {
+  const login = (headers: Record<string, string> = {}) =>
+    app.inject({
+      method: 'POST',
+      url: '/admin/login',
+      remoteAddress: '198.51.100.7',
+      payload: 'username=reviewer&password=wrong-password',
+      headers: { 'content-type': 'application/x-www-form-urlencoded', ...headers },
+    })
+
+  it('rate-limits sign-in per client even when it forges X-Forwarded-For', async () => {
+    for (let i = 0; i < 10; i++) await login({ 'x-forwarded-for': `203.0.113.${i}` })
+    const blocked = await login({ 'x-forwarded-for': '203.0.113.200' })
+    expect(decodeURIComponent(String(blocked.headers.location))).toContain('Too many attempts')
+  })
+
+  it('sends security headers on admin pages', async () => {
+    const res = await app.inject({ method: 'GET', url: '/admin/login' })
+    expect(res.headers['content-security-policy']).toContain("frame-ancestors 'none'")
+    expect(res.headers['x-frame-options']).toBe('DENY')
+    expect(res.headers['cache-control']).toBe('no-store')
+  })
+
+  it('limits registrations per address and waiting submissions per publisher', async () => {
+    const results = []
+    for (let i = 0; i < 6; i++) {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/v1/publishers/register',
+        remoteAddress: '198.51.100.9',
+        payload: { id: `pub${i}`, name: 'P', email: 'p@example.com' },
+      })
+      results.push(res.statusCode)
+    }
+    expect(results).toEqual([201, 201, 201, 201, 201, 429])
+
+    const token = await register()
+    for (let v = 1; v <= 10; v++)
+      expect(
+        (await upload(token, packExample('writing-coach', { version: `1.0.${v}` }))).statusCode,
+      ).toBe(201)
+    const over = await upload(token, packExample('writing-coach', { version: '1.0.11' }))
+    expect(over.statusCode).toBe(429)
   })
 })

@@ -36,7 +36,14 @@ const WEIGHT_EXTENSIONS = new Set([
   '.tflite',
   '.xml',
 ])
-const CUSTOM_NODE_PATTERN = /^[\w.-]+\/[\w.-]+@[0-9a-f]{40}$/
+const CUSTOM_NODE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9-]*\/[A-Za-z0-9_][\w.-]*@[0-9a-f]{40}$/
+// A PyPI project pinned to one version: no URLs, local paths or installer options.
+const PYTHON_PACKAGE_PATTERN =
+  /^[A-Za-z0-9][A-Za-z0-9._-]*(\[[A-Za-z0-9._,-]+\])?==[A-Za-z0-9.+!_-]+$/
+// Flags without values only; the rest either open ComfyUI to the network or point it at other files.
+const COMFY_FLAG_PATTERN = /^--[a-z0-9][a-z0-9-]*$/
+const FORBIDDEN_COMFY_FLAGS =
+  /^--(listen|port|enable-cors-header|tls-|front-end-|enable-manager|comfy-api-base|database-url|.*-director(y|ies)$|extra-model-paths-config|user-directory|multi-user|whitelist-custom-nodes|disable-all-custom-nodes)/
 
 export type PackageEntry = { path: string; size: number; read(): Uint8Array }
 
@@ -382,7 +389,17 @@ function checkPreset(entry: PackageEntry, path: string, r: Reporter): PresetSumm
       }
     }
     const packages = preset.requiredPythonPackages
-    if (Array.isArray(packages) && packages.length > 0) {
+    if (
+      packages !== undefined &&
+      (!Array.isArray(packages) ||
+        packages.some((p) => typeof p !== 'string' || !PYTHON_PACKAGE_PATTERN.test(p)))
+    ) {
+      r.error(
+        'preset/python-packages',
+        '"requiredPythonPackages" entries must be PyPI names pinned to one version, like "package==1.2.3"',
+        path,
+      )
+    } else if (Array.isArray(packages) && packages.length > 0) {
       r.needed.add('shell')
       r.warn(
         'review/python-packages',
@@ -390,13 +407,24 @@ function checkPreset(entry: PackageEntry, path: string, r: Reporter): PresetSumm
         path,
       )
     }
+    const flags = preset.requiredComfyUiParameters
     if (
-      Array.isArray(preset.requiredComfyUiParameters) &&
-      preset.requiredComfyUiParameters.length > 0
+      flags !== undefined &&
+      (!Array.isArray(flags) ||
+        flags.some(
+          (f) =>
+            typeof f !== 'string' || !COMFY_FLAG_PATTERN.test(f) || FORBIDDEN_COMFY_FLAGS.test(f),
+        ))
     ) {
+      r.error(
+        'preset/comfy-parameters',
+        '"requiredComfyUiParameters" may only hold value-less performance flags such as "--use-quad-cross-attention"; network, path and security flags are not allowed',
+        path,
+      )
+    } else if (Array.isArray(flags) && flags.length > 0) {
       r.warn(
         'review/comfy-parameters',
-        `Adds ComfyUI launch flags: ${preset.requiredComfyUiParameters.join(' ')}`,
+        `Adds ComfyUI launch flags: ${(flags as string[]).join(' ')}`,
         path,
       )
     }

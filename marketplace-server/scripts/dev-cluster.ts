@@ -10,7 +10,7 @@ import { createAdmin } from '../master/auth.ts'
 import { startReplication } from '../master/replication.ts'
 import { buildMirrorApp } from '../mirror/app.ts'
 import { readFolder } from '../lib/folder.ts'
-import { writeZip } from '../lib/zip.ts'
+import { writePackageZip as writeZip } from '../shared/index.ts'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const dataDir = path.join(root, 'data', 'dev-cluster')

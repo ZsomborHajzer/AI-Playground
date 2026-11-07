@@ -49,10 +49,14 @@ export function createAdmin(db: DatabaseSync, username: string, password: string
 
 export type Session = { id: string; username: string; csrf: string }
 
+// Checked when the username does not exist, so a wrong name costs the same time as a wrong password.
+const DUMMY_HASH = hashPassword(randomBytes(16).toString('hex'))
+
 export function login(db: DatabaseSync, username: string, password: string): Session | undefined {
   const admin = db.prepare('SELECT password_hash FROM admins WHERE username = ?').get(username) as
     { password_hash: string } | undefined
-  if (!admin || !checkPassword(password, admin.password_hash)) return undefined
+  const ok = checkPassword(password, admin?.password_hash ?? DUMMY_HASH)
+  if (!admin || !ok) return undefined
   const session = {
     id: randomBytes(32).toString('base64url'),
     username,
@@ -80,6 +84,13 @@ export function logout(db: DatabaseSync, id: string) {
   db.prepare('DELETE FROM sessions WHERE id = ?').run(id)
 }
 
+export function sameSecret(a: string | undefined, b: string): boolean {
+  if (typeof a !== 'string') return false
+  const x = Buffer.from(a)
+  const y = Buffer.from(b)
+  return x.length === y.length && timingSafeEqual(x, y)
+}
+
 export function cookieValue(header: string | undefined, name: string): string | undefined {
   for (const part of (header ?? '').split(';')) {
     const [key, ...rest] = part.trim().split('=')
@@ -88,11 +99,15 @@ export function cookieValue(header: string | undefined, name: string): string | 
   return undefined
 }
 
-/** Fixed-window limiter for login attempts, per client address. */
-export function rateLimiter(limit: number, windowMs: number) {
+/** Fixed-window limiter per key (client address or publisher). */
+export function rateLimiter(limit: number, windowMs: number, maxKeys = 50_000) {
   const hits = new Map<string, { count: number; resetAt: number }>()
   return (key: string): boolean => {
     const now = Date.now()
+    if (hits.size >= maxKeys) {
+      for (const [k, v] of hits) if (v.resetAt < now) hits.delete(k)
+      if (hits.size >= maxKeys) return false
+    }
     const entry = hits.get(key)
     if (!entry || entry.resetAt < now) {
       hits.set(key, { count: 1, resetAt: now + windowMs })

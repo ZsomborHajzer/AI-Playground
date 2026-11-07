@@ -9,6 +9,14 @@ export type MasterConfig = {
   maxUploadBytes: number
   replicationIntervalMs: number
   secureCookies: boolean
+  /** Which peers may set X-Forwarded-For: the reverse proxy, never the open internet. */
+  trustProxy?: string | boolean
+}
+
+export function trustProxyFromEnv(value: string | undefined): string | boolean {
+  if (value === undefined || value === '') return 'loopback,uniquelocal'
+  if (value === 'false') return false
+  return value
 }
 
 export function masterConfigFromEnv(env: NodeJS.ProcessEnv = process.env): MasterConfig {
@@ -26,5 +34,6 @@ export function masterConfigFromEnv(env: NodeJS.ProcessEnv = process.env): Maste
     secureCookies: env.SECURE_COOKIES
       ? env.SECURE_COOKIES === 'true'
       : publicUrl.startsWith('https://'),
+    trustProxy: trustProxyFromEnv(env.TRUST_PROXY),
   }
 }

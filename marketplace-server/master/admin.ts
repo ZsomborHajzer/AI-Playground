@@ -3,8 +3,16 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import type { DatabaseSync } from 'node:sqlite'
 import { sha256Hex, type PackageReport, type TrustTier } from '../shared/index.ts'
-import { readZip } from '../lib/zip.ts'
-import { cookieValue, login, logout, rateLimiter, sessionFor, type Session } from './auth.ts'
+import { readPackageZip as readZip } from '../shared/index.ts'
+import {
+  cookieValue,
+  login,
+  logout,
+  rateLimiter,
+  sameSecret,
+  sessionFor,
+  type Session,
+} from './auth.ts'
 import type { MasterConfig } from './config.ts'
 import type { MasterCore } from './core.ts'
 import { adminNav, h, page } from './html.ts'
@@ -42,7 +50,7 @@ export function registerAdminRoutes(
   function guardAction(request: FastifyRequest, reply: FastifyReply): Session | undefined {
     const session = sessionOf(request)
     const form = (request.body ?? {}) as Form
-    if (!session || form.csrf !== session.csrf) {
+    if (!session || !sameSecret(form.csrf, session.csrf)) {
       void reply
         .code(403)
         .type('text/html')

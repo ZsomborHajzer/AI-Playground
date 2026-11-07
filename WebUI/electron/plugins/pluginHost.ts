@@ -5,6 +5,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { randomBytes } from 'node:crypto'
 import {
+  PLUGIN_ID_PATTERN,
   isRevoked,
   satisfiesRange,
   sha256Hex,
@@ -57,6 +58,11 @@ type PluginError = Error & { issues?: PackageReport['issues'] }
 
 function failure(message: string, issues?: PackageReport['issues']): PluginError {
   return Object.assign(new Error(message), { issues })
+}
+
+/** Ids arrive over IPC and become folder names, so anything else is refused before touching disk. */
+function assertPluginId(id: unknown): asserts id is string {
+  if (typeof id !== 'string' || !PLUGIN_ID_PATTERN.test(id)) throw failure('Invalid plugin id')
 }
 
 export function createPluginHost(deps: PluginHostDeps) {
@@ -237,6 +243,7 @@ export function createPluginHost(deps: PluginHostDeps) {
   }
 
   async function install(id: string): Promise<InstalledPluginWire> {
+    assertPluginId(id)
     const servers = deps.servers()
     if (!servers) throw failure('No marketplace server is configured')
     if (!lastCatalog?.index.plugins.some((p) => p.latest.release.id === id)) await getCatalog()
@@ -261,6 +268,7 @@ export function createPluginHost(deps: PluginHostDeps) {
   }
 
   async function uninstall(id: string) {
+    assertPluginId(id)
     await mutate(async (state) => {
       delete state.plugins[id]
       fs.rmSync(path.join(deps.root, id), { recursive: true, force: true })
@@ -269,6 +277,7 @@ export function createPluginHost(deps: PluginHostDeps) {
   }
 
   async function setEnabled(id: string, enabled: boolean) {
+    assertPluginId(id)
     await mutate(async (state) => {
       const record = state.plugins[id]
       if (!record) throw failure(`${id} is not installed`)

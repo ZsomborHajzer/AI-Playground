@@ -145,12 +145,16 @@ describe('replication', () => {
     expect(list.total).toBe(0)
   })
 
-  it('sends download counts back to the master', async () => {
+  it('sends download counts back to the master, once per client between flushes', async () => {
     const a = await startMirror('eu')
     const { release } = publish()
     await push(a)
-    await get(a, `/v1/packages/${release.sha256}`)
-    await get(a, `/v1/packages/${release.sha256}`)
+    // Requests arrive from loopback, the default trusted proxy, so the forwarded address counts.
+    const from = (ip: string) =>
+      fetch(`${a.url}/v1/packages/${release.sha256}`, { headers: { 'x-forwarded-for': ip } })
+    await from('203.0.113.1')
+    await from('203.0.113.1')
+    await from('203.0.113.2')
     await a.store.flushStats()
     expect(core.downloads()).toEqual({ 'aipg.writing-coach': 2 })
   })

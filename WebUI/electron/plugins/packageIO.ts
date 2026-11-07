@@ -2,31 +2,18 @@
 // validator checks, and back into a zip for upload.
 import fs from 'node:fs'
 import path from 'node:path'
-import AdmZip from 'adm-zip'
-import { LIMITS, isSafeEntryPath, type PackageEntry } from '@marketplace-shared'
+import {
+  isSafeEntryPath,
+  readPackageZip,
+  writePackageZip,
+  type PackageEntry,
+} from '@marketplace-shared'
 
+/** The master's own strict reader, so the app installs exactly the files reviewers saw. */
 export function entriesFromZip(bytes: Uint8Array): PackageEntry[] {
-  let zip: AdmZip
-  try {
-    zip = new AdmZip(Buffer.from(bytes))
-  } catch (e) {
-    throw new Error(`Not a valid plugin package: ${(e as Error).message}`)
-  }
-  const files = zip.getEntries().filter((e) => !e.isDirectory)
-  if (files.length > LIMITS.files) throw new Error(`More than ${LIMITS.files} files in the package`)
-  const declared = files.reduce((sum, e) => sum + e.header.size, 0)
-  if (declared > LIMITS.totalBytes) throw new Error('The package unpacks to more than 20 MB')
-  return files.map((entry) => ({
-    path: entry.entryName,
-    size: entry.header.size,
-    read: () => {
-      const data = entry.getData()
-      // The header size is only a claim; refuse an entry that inflates past it.
-      if (data.length > Math.max(entry.header.size, 0))
-        throw new Error(`${entry.entryName} is corrupt`)
-      return new Uint8Array(data)
-    },
-  }))
+  const result = readPackageZip(bytes)
+  if ('error' in result) throw new Error(result.error)
+  return result.entries
 }
 
 const SKIPPED = new Set(['.git', 'node_modules'])
@@ -60,11 +47,7 @@ export function entriesFromPath(target: string): PackageEntry[] {
 }
 
 export function zipEntries(entries: PackageEntry[]): Uint8Array {
-  const zip = new AdmZip()
-  for (const entry of [...entries].sort((a, b) => a.path.localeCompare(b.path))) {
-    zip.addFile(entry.path, Buffer.from(entry.read()))
-  }
-  return new Uint8Array(zip.toBuffer())
+  return writePackageZip(entries.map((entry) => ({ path: entry.path, data: entry.read() })))
 }
 
 /** Writes validated entries under `dir`; paths were checked by the validator, and again here. */

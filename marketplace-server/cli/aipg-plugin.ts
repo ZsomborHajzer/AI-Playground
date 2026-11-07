@@ -15,7 +15,7 @@ import {
   type PackageReport,
 } from '../shared/index.ts'
 import { readFolder } from '../lib/folder.ts'
-import { readZip, writeZip } from '../lib/zip.ts'
+import { readPackageZip as readZip, writePackageZip as writeZip } from '../shared/index.ts'
 
 const HELP = `aipg-plugin <command> [options]
 

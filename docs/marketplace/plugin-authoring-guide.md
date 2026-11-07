@@ -230,6 +230,11 @@ How the pieces fit:
   confirm**. Never put model files in the plugin.
 - **`requiredCustomNodes`** lists custom node repositories as `owner/repo@<full 40-character
 commit hash>`. Unpinned entries are rejected, because a branch can change after review.
+- **`requiredPythonPackages`** lists PyPI packages pinned to one version (`package==1.2.3`), for
+  the same reason. URLs, wheel files and installer options are rejected.
+- **`requiredComfyUiParameters`** adds ComfyUI launch flags. Only value-less performance flags
+  such as `--use-quad-cross-attention` are allowed; anything that changes ComfyUI's network
+  address, ports, CORS, front end or folders is rejected.
 - **`variants`** (optional) offer alternative versions of the same preset, for example a fast
   draft and a high-quality version. See `upscale.json` among the bundled presets.
 

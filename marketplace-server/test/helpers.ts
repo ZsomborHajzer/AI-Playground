@@ -3,7 +3,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { readFolder } from '../lib/folder.ts'
-import { writeZip } from '../lib/zip.ts'
+import { writePackageZip as writeZip } from '../shared/index.ts'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 

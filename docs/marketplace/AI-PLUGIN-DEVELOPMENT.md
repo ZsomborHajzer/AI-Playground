@@ -154,6 +154,11 @@ object in **ComfyUI API format** (node id → `{class_type, inputs, _meta.title}
     input also needs `modelType`.
 - `requiredModels[]`: `{ "type": <ComfyUI model folder>, "model": "<hf-owner>/<repo>/<path/file>" }`.
 - `requiredCustomNodes[]`: `"owner/repo@<40-hex commit>"`. Needs the `shell` permission.
+- `requiredPythonPackages[]`: PyPI names pinned with `==`, e.g. `"package==1.2.3"` (extras like
+  `name[extra]==1.0` are fine). No URLs, wheel files, paths or options. Needs `shell`.
+- `requiredComfyUiParameters[]`: value-less ComfyUI flags only, e.g.
+  `"--use-quad-cross-attention"`. Network, port, CORS, TLS, front-end, manager and directory
+  flags are rejected.
 
 ## 4. Build loop
 
@@ -228,6 +233,8 @@ preset that does not appear failed it.
 | `preset/backends`                                                       | Chat preset: non-empty `backends`.                                                                             |
 | `preset/backend`, `preset/workflow`                                     | Comfy preset: `"backend": "comfyui"` and a non-empty API-format `comfyUiApiWorkflow`.                          |
 | `preset/custom-nodes`                                                   | Use `owner/repo@<40-hex commit>`.                                                                              |
+| `preset/python-packages`                                                | Pin each package: `name==version`. Remove URLs and options.                                                    |
+| `preset/comfy-parameters`                                               | Keep only value-less performance flags; drop `--listen`, `--port`, directory and other flags.                  |
 | `preset/required-models`                                                | `requiredModels` must be an array.                                                                             |
 | `preset/mcp-capability`                                                 | Remove `mcp:` entries from `agentCapabilities`.                                                                |
 | `permissions/missing`                                                   | Add the named permission.                                                                                      |

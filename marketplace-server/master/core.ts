@@ -22,7 +22,7 @@ import {
   type SignedRelease,
   type TrustTier,
 } from '../shared/index.ts'
-import { readZip } from '../lib/zip.ts'
+import { readPackageZip as readZip } from '../shared/index.ts'
 import { newPublisherToken } from './auth.ts'
 import {
   nowIso,
@@ -34,6 +34,8 @@ import {
   type SubmissionRow,
 } from './db.ts'
 import type { SigningKeys } from './keys.ts'
+
+const MAX_WAITING_PER_PUBLISHER = 10
 
 export type HttpError = Error & { statusCode: number; details?: unknown }
 
@@ -140,6 +142,17 @@ export function createMasterCore(options: {
       throw httpError(422, 'The package did not pass the automated checks', report.issues)
     }
     const manifest = report.manifest
+    const waiting = db
+      .prepare(
+        "SELECT COUNT(*) AS n FROM submissions WHERE publisher_id = ? AND status = 'in-review'",
+      )
+      .get(owner.id) as { n: number }
+    if (waiting.n >= MAX_WAITING_PER_PUBLISHER) {
+      throw httpError(
+        429,
+        `You have ${waiting.n} submissions waiting for review; wait for a decision before uploading more`,
+      )
+    }
     const pending = db
       .prepare(
         "SELECT id FROM submissions WHERE plugin_id = ? AND version = ? AND status = 'in-review'",

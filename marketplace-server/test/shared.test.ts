@@ -20,7 +20,7 @@ import {
   type SignedIndex,
 } from '../shared/index.ts'
 import { readFolder } from '../lib/folder.ts'
-import { readZip, writeZip } from '../lib/zip.ts'
+import { readPackageZip as readZip, writePackageZip as writeZip } from '../shared/index.ts'
 import { examplePath, manifestFor } from './helpers.ts'
 
 const enc = new TextEncoder()
@@ -215,6 +215,43 @@ describe('validatePackage', () => {
     expect(codes).toContain('preset/mcp-capability')
   })
 
+  it('allows only pinned PyPI packages, safe flags and plain repository names', () => {
+    const codesFor = (fields: Record<string, unknown>) =>
+      validatePackage([
+        entry('aipg-plugin.json', { ...manifest, permissions: ['shell'] }),
+        entry('presets/up.json', {
+          type: 'comfy',
+          name: 'Up',
+          backend: 'comfyui',
+          comfyUiApiWorkflow: { '1': {} },
+          ...fields,
+        }),
+      ]).issues.map((i) => i.code)
+
+    expect(codesFor({ requiredPythonPackages: ['numpy==2.1.0', 'pkg[gpu]==1.0'] })).not.toContain(
+      'preset/python-packages',
+    )
+    for (const bad of [
+      'numpy',
+      'numpy>=2',
+      'https://evil.example/x.whl',
+      '--index-url=https://evil.example',
+      '-e .',
+    ])
+      expect(codesFor({ requiredPythonPackages: [bad] })).toContain('preset/python-packages')
+
+    expect(codesFor({ requiredComfyUiParameters: ['--use-quad-cross-attention'] })).not.toContain(
+      'preset/comfy-parameters',
+    )
+    for (const bad of ['--listen', '--port=1', '--output-directory', '--front-end-root', 'x'])
+      expect(codesFor({ requiredComfyUiParameters: [bad] })).toContain('preset/comfy-parameters')
+
+    for (const bad of ['../repo@', './x@', 'owner/..@', '-o/repo@'])
+      expect(codesFor({ requiredCustomNodes: [bad + 'a'.repeat(40)] })).toContain(
+        'preset/custom-nodes',
+      )
+  })
+
   it('accepts both example plugin folders under policy', () => {
     for (const name of ['writing-coach', 'upscale-workflow']) {
       const report = validatePackage(readFolder(examplePath(name)), {
@@ -254,6 +291,39 @@ describe('zip', () => {
 
   it('rejects garbage', () => {
     expect('error' in readZip(enc.encode('not a zip'))).toBe(true)
+  })
+
+  const good = () => writeZip([{ path: 'a.json', data: enc.encode('{"a":1}') }])
+  const errorOf = (bytes: Uint8Array) => {
+    const read = readZip(bytes)
+    return 'error' in read ? read.error : ''
+  }
+
+  it('reads zips made by other tools, skipping directory entries', () => {
+    const other = zipSync({ 'presets/': new Uint8Array(), 'presets/a.json': enc.encode('{}') })
+    const read = readZip(other)
+    if ('error' in read) throw new Error(read.error)
+    expect(read.entries.map((e) => e.path)).toEqual(['presets/a.json'])
+  })
+
+  it('refuses bytes that a different zip parser could read as other files', () => {
+    const hidden = zipSync({ 'evil.json': enc.encode('{"evil":true}') })
+    const prepended = new Uint8Array([...hidden.subarray(0, 40), ...good()])
+    expect(errorOf(prepended)).toMatch(/gap or overlap|central directory/)
+    expect(errorOf(new Uint8Array([...good(), 0, 0]))).toMatch(/trailing data/)
+
+    const renamed = good()
+    renamed[30] = 'b'.charCodeAt(0)
+    expect(errorOf(renamed)).toMatch(/disagrees/)
+  })
+
+  it('refuses an entry that inflates past its declared size', () => {
+    const bytes = writeZip([{ path: 'a.txt', data: new Uint8Array(100_000) }])
+    const view = new DataView(bytes.buffer, bytes.byteOffset)
+    const cd = view.getUint32(bytes.length - 6, true)
+    view.setUint32(22, 10, true)
+    view.setUint32(cd + 24, 10, true)
+    expect(errorOf(bytes)).toMatch(/corrupt|larger/)
   })
 })
 

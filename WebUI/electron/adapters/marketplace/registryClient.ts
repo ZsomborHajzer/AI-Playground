@@ -16,6 +16,39 @@ export type MarketplaceServers = { mirrors: string[]; masterUrl: string; publicK
 
 const REQUEST_TIMEOUT_MS = 10_000
 const DOWNLOAD_TIMEOUT_MS = 120_000
+const MAX_INDEX_BYTES = 32 * 1024 * 1024
+const MAX_RESPONSE_BYTES = 4 * 1024 * 1024
+const LOOPBACK_URL = /^http:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?(\/|$)/
+
+/** Reads a body but stops at `limit` bytes, so a hostile server cannot exhaust memory. */
+async function readLimited(response: Response, limit: number): Promise<Uint8Array> {
+  const declared = Number(response.headers.get('content-length') ?? 0)
+  if (declared > limit) throw new Error(`response is larger than ${limit} bytes`)
+  if (!response.body) return new Uint8Array()
+  const chunks: Uint8Array[] = []
+  let total = 0
+  const reader = response.body.getReader()
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    total += value.length
+    if (total > limit) {
+      await reader.cancel()
+      throw new Error(`response is larger than ${limit} bytes`)
+    }
+    chunks.push(value)
+  }
+  const out = new Uint8Array(total)
+  let offset = 0
+  for (const chunk of chunks) {
+    out.set(chunk, offset)
+    offset += chunk.length
+  }
+  return out
+}
+
+const readJsonLimited = async <T>(response: Response, limit: number): Promise<T> =>
+  JSON.parse(new TextDecoder().decode(await readLimited(response, limit))) as T
 
 /** `external/marketplace.local.json` (dev cluster, gitignored) wins over the shipped `marketplace.json`. */
 export function loadMarketplaceServers(externalDir: string): MarketplaceServers | null {
@@ -25,10 +58,13 @@ export function loadMarketplaceServers(externalDir: string): MarketplaceServers 
     try {
       const raw = JSON.parse(fs.readFileSync(file, 'utf8')) as Partial<MarketplaceServers>
       const mirrors = (raw.mirrors ?? []).filter((m) => /^https?:\/\/\S+$/.test(m))
+      // The publisher token travels to the master, so it must not cross the network in clear text.
+      const masterUrl = (raw.masterUrl ?? '').replace(/\/+$/, '')
+      const safeMaster = masterUrl.startsWith('https://') || LOOPBACK_URL.test(masterUrl)
       if (mirrors.length && raw.publicKeyPem?.includes('BEGIN PUBLIC KEY')) {
         return {
           mirrors: mirrors.map((m) => m.replace(/\/+$/, '')),
-          masterUrl: (raw.masterUrl ?? '').replace(/\/+$/, ''),
+          masterUrl: safeMaster ? masterUrl : '',
           publicKeyPem: raw.publicKeyPem,
         }
       }
@@ -57,7 +93,7 @@ export async function fetchVerifiedCatalog(
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       })
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
-      const signed = (await response.json()) as SignedIndex
+      const signed = await readJsonLimited<SignedIndex>(response, MAX_INDEX_BYTES)
       const check = verifyIndex(signed, servers.publicKeyPem, minSeq)
       if (!check.ok) throw new Error(check.reason)
       return { mirror, index: signed.index, downloads: await fetchDownloads(mirror, fetchImpl) }
@@ -77,10 +113,10 @@ async function fetchDownloads(mirror: string, fetchImpl: typeof fetch) {
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       })
       if (!response.ok) break
-      const body = (await response.json()) as {
+      const body = await readJsonLimited<{
         items: { latest: { release: { id: string } }; downloads: number }[]
         pageSize: number
-      }
+      }>(response, MAX_INDEX_BYTES)
       for (const item of body.items) downloads[item.latest.release.id] = item.downloads
       if (body.items.length < body.pageSize) break
     }
@@ -110,7 +146,7 @@ export async function downloadVerifiedPackage(
         signal: AbortSignal.timeout(DOWNLOAD_TIMEOUT_MS),
       })
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
-      const bytes = new Uint8Array(await response.arrayBuffer())
+      const bytes = await readLimited(response, release.release.size)
       if (sha256Hex(bytes) !== release.release.sha256)
         throw new Error('bytes do not match the signed hash')
       return bytes
@@ -134,7 +170,7 @@ async function masterJson<T>(
     headers: { authorization: `Bearer ${token}`, ...(init.headers ?? {}) },
     signal: AbortSignal.timeout(DOWNLOAD_TIMEOUT_MS),
   })
-  const text = await response.text()
+  const text = new TextDecoder().decode(await readLimited(response, MAX_RESPONSE_BYTES))
   let body: T & { error?: string; issues?: [] }
   try {
     body = JSON.parse(text)
