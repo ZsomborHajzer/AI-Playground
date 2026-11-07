@@ -1,0 +1,642 @@
+15:11:19.834 LOG   main     [electron-backend] startup: isPackaged=false platform=win32 DIST="C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\WebUI\dist\" userData="C:\Users\zsomb\AppData\Roaming\ai-playground"
+15:11:19.835 LOG   main     [electron-backend] startup step: loading settings
+15:11:19.835 LOG   main     [electron-backend] loading dev defaults from C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\WebUI\external\settings-dev.json
+15:11:19.836 LOG   main     [electron-backend] loading dev user settings from C:\Users\zsomb\AppData\Roaming\ai-playground\ai-playground-local-settings.json
+15:11:19.837 LOG   main     [electron-backend] settings loaded: {"settings":{"productMode":"studio","isDemoModeEnabled":false,"demoModeResetInSeconds":60,"demoModePasscode":"0451","isAgentPresetEnabled":true,"showDebugSettingsInUI":true,"disabledBackends":[],"languageOverride":null,"remoteRepository":"asdf/ai-playground","huggingfaceEndpoint":"https://huggingface.co","mcpAutoDetectionDismissed":[],"openvinoImageGenDevices":["CPU","GPU"],"lastSelectedDevicePerBackend":{"openvino-backend":"AUTO","llamacpp-backend":"2","comfyui-backend":"0"},"lastSelectedDeviceUuidPerBackend":{"comfyui-backend":"86800be2-0000-0000-0300-000000000000"},"versionOverrides":{},"comfyUiParameters":null,"llamaCppParameters":null,"llamaCppBuildVariant":"standard","llamaCppOffloadDrive":null,"openvinoKvCacheU4":false,"preferredDevice":{"name":"Intel(R) Arc(TM) B580 Graphics","gpuDeviceId":"0xe20b","uuid":"00000000-0000-0003-0000-0000e20b8086","instanceId":"INTEL_GPU:0"},"PhisonSSDdetected":false,"oemVendorOverride":"acer","allowPlaintextSecretStorage":false}}
+15:11:19.838 LOG   main     [electron-backend] startup step: configuring proxy
+15:11:19.838 LOG   main     [electron-backend] startup step: initializing tracing
+15:11:19.839 LOG   main     [electron-backend] startup step: initializing event handlers
+15:11:19.842 LOG   main     [mcp] Loaded MCP servers from C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\WebUI\external\mcp-dev.json
+15:11:19.881 LOG   main     [electron-backend] startup step: creating window
+15:11:19.901 LOG   main     [electron-backend] Found xpu-smi.exe at C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\build\resources\xpu-smi.exe
+15:11:19.904 LOG   main     [compute-metrics] sampling every 2000ms on win32; wddm: DXGI+PDH; intel probe: disabled (Vulkan device-lost); nvidia probe: nvidia-smi.exe
+15:11:19.921 LOG   main     [compute-metrics] wddm: DXGI enumerated 3 adapter(s): AMD Radeon(TM) Graphics, AMD Radeon RX 6400, Intel(R) Arc(TM) B580 Graphics
+15:11:20.122 LOG   main     [electron-backend] startup step: initializing service registry
+15:11:20.137 NOISE main     [compute-metrics] probe failed: nvidia-smi.exe --query-gpu=index,name,uuid,utilization.gpu,memory.used,memory.total,power.draw,clocks.current.graphics --format=csv,noheader,nounits — exit -1: Process error: spawn nvidia-smi.exe ENOENT
+15:11:20.173 LOG   main     [backend-version] Bundled openvino-backend version from local JSON: {"version":"2026.4.0"}
+15:11:20.173 LOG   main     checking C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\OpenVINO\ovms\ovms.exe
+15:11:20.173 LOG   main     OVMS isSetUp: true
+15:11:20.181 LOG   main     [backend-version] Bundled ComfyUI git ref from local JSON: v0.34.0
+15:11:20.182 LOG   main     [comfyui-backend] Checking if comfyUI directories exist
+15:11:20.182 LOG   main     [comfyui-backend] Checking if comfyUI directories exist: true
+15:11:20.182 LOG   main     [git] Spawning command C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\portable-git\cmd\git.exe -C C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI describe --tags --exact-match
+15:11:20.183 LOG   main     [git] Extra env: {"GIT_SSL_CAINFO":"C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\portable-git\\mingw64\\etc\\ssl\\certs\\ca-bundle.crt","PIP_CONFIG_FILE":"nul"}
+15:11:20.202 LOG   main     [llamacpp-backend] Service llamacpp-backend isSetUp: true
+15:11:20.222 LOG   main     [uv.check.service] Found UV executable at C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\build\resources\uv.exe
+15:11:20.223 LOG   main     [uv.check.service] Checking backend: service with ["sync","--check","--directory","C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\","--project","service"]
+15:11:20.224 LOG   main     [uv.check.service] Spawning UV process with command: sync --check --directory C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ --project service
+15:11:20.246 LOG   main     [uv.check.home-agent] Found UV executable at C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\build\resources\uv.exe
+15:11:20.246 LOG   main     [uv.check.home-agent] Venv at C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\home-agent\.venv has no interpreter — reporting backend as not installed
+15:11:20.246 LOG   main     [home-agent-backend] Service home-agent-backend isSetUp: false
+15:11:20.247 LOG   main     [home-agent-backend] getting info: current status is notInstalled
+15:11:20.247 LOG   main     [home-agent-backend] Service home-agent-backend isSetUp: false
+15:11:20.248 LOG   main     [uv.check.qwen3-tts] Found UV executable at C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\build\resources\uv.exe
+15:11:20.248 LOG   main     [uv.check.qwen3-tts] Checking backend: qwen3-tts with ["sync","--check","--directory","C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\","--project","qwen3-tts","--extra","xpu"]
+15:11:20.249 LOG   main     [uv.check.qwen3-tts] Spawning UV process with command: sync --check --directory C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ --project qwen3-tts --extra xpu
+15:11:20.253 LOG   main     [uv.check.whisper-backend] Found UV executable at C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\build\resources\uv.exe
+15:11:20.254 LOG   main     [uv.check.whisper-backend] Checking backend: whisper-backend with ["sync","--check","--directory","C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\","--project","whisper-backend","--extra","xpu"]
+15:11:20.255 LOG   main     [uv.check.whisper-backend] Spawning UV process with command: sync --check --directory C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ --project whisper-backend --extra xpu
+15:11:20.265 LOG   main     [git] v0.34.0
+15:11:20.265 LOG   main     [comfyui-backend] comfyUI version v0.34.0 detected
+15:11:20.268 LOG   main     [uv.check-details.ComfyUI] Found UV executable at C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\build\resources\uv.exe
+15:11:20.269 LOG   main     [uv.check-details.ComfyUI] Venv interpreter exists at C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\.venv\Scripts\python.exe
+15:11:20.270 LOG   main     [uv.check-details.ComfyUI] Checking backend with details: ComfyUI with ["sync","--check","--inexact","--output-format","json","--directory","C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\","--project","ComfyUI","--extra","xpu"]
+15:11:20.270 LOG   main     [uv.check-details.ComfyUI] Spawning UV process with command: sync --check --inexact --output-format json --directory C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ --project ComfyUI --extra xpu
+15:11:20.275 LOG   main     [uv.check.service] UV Error: Would use project environment at: service\.venv
+                            Resolved 44 packages in 1ms
+                            Found up-to-date lockfile at: service\uv.lock
+15:11:20.278 LOG   main     [uv.check.qwen3-tts] UV Error: Would use project environment at: qwen3-tts\.venv
+15:11:20.279 LOG   main     [uv.check.service] UV Error: Checked 43 packages in 4ms
+                            Would make no changes
+15:11:20.281 LOG   main     [uv.check.qwen3-tts] UV Error: Resolved 110 packages in 1ms
+                            Found up-to-date lockfile at: qwen3-tts\uv.lock
+15:11:20.282 LOG   main     [uv.check.service] UV process completed successfully
+15:11:20.282 LOG   main     [ai-backend] Service ai-backend isSetUp: true
+15:11:20.283 LOG   main     [ai-backend] getting info: current status is notYetStarted
+15:11:20.283 LOG   main     [ai-backend] Service ai-backend isSetUp: true
+15:11:20.285 LOG   main     [uv.check.whisper-backend] UV Error: Would use project environment at: whisper-backend\.venv
+15:11:20.288 LOG   main     [uv.check.whisper-backend] UV Error: Resolved 110 packages in 1ms
+15:11:20.289 LOG   main     [uv.check.whisper-backend] UV Error: Found up-to-date lockfile at: whisper-backend\uv.lock
+15:11:20.293 LOG   main     [uv.check.qwen3-tts] UV Error: Checked 82 packages in 7ms
+                            Would make no changes
+15:11:20.297 LOG   main     [uv.check.qwen3-tts] UV process completed successfully
+15:11:20.302 LOG   main     [uv.check.whisper-backend] UV Error: Checked 82 packages in 6ms
+                            Would make no changes
+15:11:20.303 LOG   main     [uv.check.whisper-backend] UV process completed successfully
+15:11:20.448 LOG   main     [uv.check-details.ComfyUI] UV Error: Resolved 276 packages in 146ms
+15:11:20.473 LOG   main     [uv.check-details.ComfyUI] UV Error: Checked 222 packages in 13ms
+                            Would make no changes
+15:11:20.473 LOG   main     [uv.check-details.ComfyUI] UV: {
+                              "schema": {
+                                "version": "preview"
+                              },
+                              "target": "project",
+                              "project": {
+                                "path": "C:/Users/zsomb/Desktop/ai-playground-fork/AI-Playground/ComfyUI",
+                                "workspace": {
+                                  "path": "C:/Users/zsomb/Desktop/ai-playground-fork/AI-Playground/ComfyUI"
+                                }
+                              },
+                              "sync": {
+                                "environment": {
+                                  "path": "C:/Users/zsomb/Desktop/ai-playground-fork/AI-Playground/ComfyUI/.venv",
+                                  "python": {
+                                    "path": "C:/Users/zsomb/Desktop/ai-playground-fork/AI-Playground/ComfyUI/.venv/Scripts/python.exe",
+                                    "version": "3.12.15",
+                                    "implementation": "cpython"
+                                  }
+                                },
+                                "action": "check",
+                                "changes": []
+                              },
+                              "lock": {
+                                "path": "C:/Users/zsomb/Desktop/ai-playground-fork/AI-Playground/ComfyUI/uv.lock",
+                                "action": "check"
+                              },
+                              "dry_run": true
+                            }
+15:11:20.477 LOG   main     [comfyui-backend] Service comfyui-backend venv exists, allowing startup attempt
+15:11:20.478 LOG   main     [comfyui-backend] getting info: current status is notYetStarted
+15:11:20.479 LOG   main     [comfyui-backend] Service comfyui-backend isSetUp: true
+15:11:20.557 LOG   main     checking C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\OpenVINO\ovms\ovms.exe
+15:11:20.558 LOG   main     [comfyui-backend] Checking if comfyUI directories exist
+15:11:20.558 LOG   main     [comfyui-backend] Checking if comfyUI directories exist: true
+15:11:20.558 LOG   main     [git] Spawning command C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\portable-git\cmd\git.exe -C C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI describe --tags --exact-match
+15:11:20.559 LOG   main     [git] Extra env: {"GIT_SSL_CAINFO":"C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\portable-git\\mingw64\\etc\\ssl\\certs\\ca-bundle.crt","PIP_CONFIG_FILE":"nul"}
+15:11:20.561 LOG   main     [electron-backend] startup step: loading app window
+15:11:20.568 LOG   main     [uv.check.home-agent] Found UV executable at C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\build\resources\uv.exe
+15:11:20.569 LOG   main     [uv.check.home-agent] Venv at C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\home-agent\.venv has no interpreter — reporting backend as not installed
+15:11:20.569 LOG   main     [home-agent-backend] Service home-agent-backend isSetUp: false
+15:11:20.570 LOG   main     [uv.check.service] Found UV executable at C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\build\resources\uv.exe
+15:11:20.571 LOG   main     [uv.check.service] Checking backend: service with ["sync","--check","--directory","C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\","--project","service"]
+15:11:20.571 LOG   main     [uv.check.service] Spawning UV process with command: sync --check --directory C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ --project service
+15:11:20.573 LOG   main     [uv.check.qwen3-tts] Found UV executable at C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\build\resources\uv.exe
+15:11:20.574 LOG   main     [uv.check.qwen3-tts] Checking backend: qwen3-tts with ["sync","--check","--directory","C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\","--project","qwen3-tts","--extra","xpu"]
+15:11:20.575 LOG   main     [uv.check.qwen3-tts] Spawning UV process with command: sync --check --directory C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ --project qwen3-tts --extra xpu
+15:11:20.577 LOG   main     [uv.check.whisper-backend] Found UV executable at C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\build\resources\uv.exe
+15:11:20.578 LOG   main     [uv.check.whisper-backend] Checking backend: whisper-backend with ["sync","--check","--directory","C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\","--project","whisper-backend","--extra","xpu"]
+15:11:20.578 LOG   main     [uv.check.whisper-backend] Spawning UV process with command: sync --check --directory C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ --project whisper-backend --extra xpu
+15:11:20.594 LOG   main     [git] v0.34.0
+15:11:20.597 LOG   main     [uv.check.service] UV Error: Would use project environment at: service\.venv
+15:11:20.598 LOG   main     [comfyui-backend] comfyUI version v0.34.0 detected
+15:11:20.599 LOG   main     [uv.check.service] UV Error: Resolved 44 packages in 0.96ms
+                            Found up-to-date lockfile at: service\uv.lock
+15:11:20.600 LOG   main     [uv.check-details.ComfyUI] Found UV executable at C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\build\resources\uv.exe
+15:11:20.601 LOG   main     [uv.check-details.ComfyUI] Venv interpreter exists at C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\.venv\Scripts\python.exe
+15:11:20.601 LOG   main     [uv.check-details.ComfyUI] Checking backend with details: ComfyUI with ["sync","--check","--inexact","--output-format","json","--directory","C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\","--project","ComfyUI","--extra","xpu"]
+15:11:20.602 LOG   main     [uv.check-details.ComfyUI] Spawning UV process with command: sync --check --inexact --output-format json --directory C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ --project ComfyUI --extra xpu
+15:11:20.605 LOG   main     [uv.check.qwen3-tts] UV Error: Would use project environment at: qwen3-tts\.venv
+                            Resolved 110 packages in 1ms
+                            Found up-to-date lockfile at: qwen3-tts\uv.lock
+15:11:20.605 LOG   main     [uv.check.whisper-backend] UV Error: Would use project environment at: whisper-backend\.venv
+15:11:20.605 LOG   main     [uv.check.service] UV Error: Checked 43 packages in 2ms
+                            Would make no changes
+15:11:20.607 LOG   main     [uv.check.whisper-backend] UV Error: Resolved 110 packages in 1ms
+15:11:20.608 LOG   main     [uv.check.whisper-backend] UV Error: Found up-to-date lockfile at: whisper-backend\uv.lock
+15:11:20.608 LOG   main     [uv.check.service] UV process completed successfully
+15:11:20.609 LOG   main     [ai-backend] Service ai-backend isSetUp: true
+15:11:20.616 LOG   main     [uv.check.qwen3-tts] UV Error: Checked 82 packages in 6ms
+                            Would make no changes
+15:11:20.619 LOG   main     [uv.check.whisper-backend] UV Error: Checked 82 packages in 6ms
+                            Would make no changes
+15:11:20.619 LOG   main     [uv.check.qwen3-tts] UV process completed successfully
+15:11:20.622 LOG   main     [uv.check.whisper-backend] UV process completed successfully
+15:11:20.648 LOG   main     [llamacpp-backend] probeInstalledVersionInDir: , version: 0.3.0-dev (build 10666, commit 4e97ac86e)
+                            built with Clang 20.1.8 for Windows x86_64
+                            , b10666
+15:11:20.746 LOG   main     [uv.check-details.ComfyUI] UV Error: Resolved 276 packages in 114ms
+15:11:20.768 LOG   main     [uv.check-details.ComfyUI] UV Error: Checked 222 packages in 12ms
+                            Would make no changes
+15:11:20.769 LOG   main     [uv.check-details.ComfyUI] UV: {
+                              "schema": {
+                                "version": "preview"
+                              },
+                              "target": "project",
+                              "project": {
+                                "path": "C:/Users/zsomb/Desktop/ai-playground-fork/AI-Playground/ComfyUI",
+                                "workspace": {
+                                  "path": "C:/Users/zsomb/Desktop/ai-playground-fork/AI-Playground/ComfyUI"
+                                }
+                              },
+                              "sync": {
+                                "environment": {
+                                  "path": "C:/Users/zsomb/Desktop/ai-playground-fork/AI-Playground/ComfyUI/.venv",
+                                  "python": {
+                                    "path": "C:/Users/zsomb/Desktop/ai-playground-fork/AI-Playground/ComfyUI/.venv/Scripts/python.exe",
+                                    "version": "3.12.15",
+                                    "implementation": "cpython"
+                                  }
+                                },
+                                "action": "check",
+                                "changes": []
+                              },
+                              "lock": {
+                                "path": "C:/Users/zsomb/Desktop/ai-playground-fork/AI-Playground/ComfyUI/uv.lock",
+                                "action": "check"
+                              },
+                              "dry_run": true
+                            }
+15:11:20.773 LOG   main     [comfyui-backend] Service comfyui-backend venv exists, allowing startup attempt
+15:11:21.210 LOG   renderer [vite] connecting...  (@vite/client:859)
+15:11:21.483 NOISE renderer Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.  (node_modules/.vite/deps/@google_model-viewer.js:106)
+15:11:21.485 LOG   main     [electron-backend] load url:http://localhost:25413/
+15:11:21.486 LOG   main     [electron-backend] startup step: spawning langchain utility process
+15:11:21.486 LOG   main     [electron-backend] Starting langchain utility process
+15:11:21.487 LOG   main     [electron-backend] C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\WebUI\dist\langchain\langchain.js
+15:11:21.488 LOG   main     [electron-backend] startup step: ready
+15:11:21.525 LOG   main     [backend-version] Fetching backend versions from https://raw.githubusercontent.com/asdf/ai-playground/refs/heads/3.2.1-beta/WebUI/external/backend-versions.json
+15:11:21.533 LOG   main     [models] Fetching models from https://raw.githubusercontent.com/asdf/ai-playground/refs/heads/3.2.1-beta/WebUI/external/models.json
+15:11:21.537 LOG   renderer llmModels changed  (src/assets/js/store/textInference.ts:257)
+15:11:21.537 LOG   renderer activeModel changed undefined  (src/assets/js/store/textInference.ts:339)
+15:11:21.537 LOG   renderer llmEmbeddingTypeModels  (src/assets/js/store/textInference.ts:262)
+15:11:21.537 LOG   renderer llmEmbeddingModels changed  (src/assets/js/store/textInference.ts:287)
+15:11:21.537 LOG   renderer activeEmbeddingModel changed undefined  (src/assets/js/store/textInference.ts:356)
+15:11:21.539 LOG   renderer ### presets store activePresetWithVariant Assistant  (src/assets/js/store/presets.ts:409)
+15:11:21.539 LOG   renderer ### activePreset null  (src/assets/js/store/imageGenerationPresets.ts:70)
+15:11:21.540 LOG   renderer ### watch presets [object Object]  (src/assets/js/store/imageGenerationPresets.ts:1012)
+15:11:21.544 NOISE renderer %cElectron Security Warning (Insecure Content-Security-Policy) font-weight: bold; This renderer process has either no Content Security
+                              Policy set or a policy with "unsafe-eval" enabled. This exposes users of
+                              this app to unnecessary security risks.
+                            
+                            For more information and help, consult
+                            https://electronjs.org/docs/tutorial/security.
+                            This warning will not show up
+                            once the app is packaged.  (node:electron/js2c/sandbox_bundle:2)
+15:11:21.549 LOG   renderer [vite] connected.  (@vite/client:968)
+15:11:21.635 LOG   main     [ha-diag] [HA-DIAG] forwarder installed — renderer perf logs will appear here
+15:11:21.639 WARN  main     [models] Failed to fetch remote models: 404 Not Found
+15:11:21.641 WARN  main     [backend-version] Failed to fetch remote versions: 404 Not Found
+15:11:21.644 LOG   main     [models] Loaded backend models from C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\WebUI\external\models.json
+15:11:21.644 LOG   main     [models] Using local models (36 models)
+15:11:21.644 LOG   main     [backend-version] Loaded backend versions from C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\WebUI\external\backend-versions.json
+15:11:21.645 WARN  main     [backend-version] No version found for ai-backend
+15:11:21.645 WARN  main     [backend-version] No version found for home-agent-backend
+15:11:21.645 WARN  main     [backend-version] No version found for qwen3-tts-backend
+15:11:21.645 WARN  main     [backend-version] No version found for whisper-backend
+15:11:21.645 LOG   main     [backend-version] Using local version for llamacpp-backend: {"version":"b10666"}
+15:11:21.645 LOG   main     [backend-version] Using local version for openvino-backend: {"version":"2026.4.0"}
+15:11:21.645 LOG   main     [backend-version] Using local version for comfyui-backend: {"version":"v0.34.0"}
+15:11:21.674 LOG   renderer validatedPresets [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]  (src/assets/js/store/presets.ts:228)
+15:11:21.674 LOG   renderer Loaded 31 presets from files  (src/assets/js/store/presets.ts:230)
+15:11:21.692 LOG   renderer Loading settings for active preset [object Proxy]  (src/assets/js/store/textInference.ts:1177)
+15:11:21.692 LOG   renderer Loading settings for preset Assistant [object Object]  (src/assets/js/store/textInference.ts:1184)
+15:11:21.693 LOG   renderer Loading system prompt from preset You are a helpful AI assistant with access to tools. You can call functions to generate images, synthesize speech audio from scripts (Qwen3 TTS), process workflows, and perform various tasks. Use tools when appropriate to help the user accomplish their goals.  (src/assets/js/store/textInference.ts:1331)
+15:11:21.693 LOG   renderer [textInference] loadSettingsForActivePreset: preset="Assistant" requiresPhison=undefined supportsPhisonKmRag=true savedRagMode=undefined resolvedRagMode=standard ragMode=standard  (src/assets/js/store/textInference.ts:1374)
+15:11:21.693 LOG   renderer ### presets store activePresetWithVariant Assistant  (src/assets/js/store/presets.ts:409)
+15:11:21.693 LOG   renderer ### activePreset [object Proxy]  (src/assets/js/store/imageGenerationPresets.ts:70)
+15:11:21.693 LOG   renderer ### watch presets [object Object]  (src/assets/js/store/imageGenerationPresets.ts:1012)
+15:11:21.703 LOG   main     getting models C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\LLM\ggufLLM
+15:11:21.703 LOG   renderer Loaded 0 user presets  (src/assets/js/store/presets.ts:264)
+15:11:21.718 LOG   renderer ### presets store activePresetWithVariant Assistant  (src/assets/js/store/presets.ts:409)
+15:11:21.718 LOG   renderer ### watch presets [object Object]  (src/assets/js/store/imageGenerationPresets.ts:1012)
+15:11:21.718 LOG   main     getting models C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\LLM\openvino
+15:11:21.720 LOG   renderer downloadedModels  (src/assets/js/store/models.ts:57)
+15:11:21.721 LOG   renderer llmModels changed [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]  (src/assets/js/store/textInference.ts:257)
+15:11:21.721 LOG   renderer Models refreshed [object Proxy]  (src/assets/js/store/models.ts:115)
+15:11:21.721 LOG   renderer activeModel changed unsloth/Qwen3.5-9B-GGUF/Qwen3.5-9B-Q4_K_M.gguf  (src/assets/js/store/textInference.ts:339)
+15:11:21.721 LOG   renderer llmEmbeddingTypeModels [object Proxy],[object Proxy],[object Proxy],[object Proxy],[object Proxy],[object Proxy]  (src/assets/js/store/textInference.ts:262)
+15:11:21.721 LOG   renderer llmEmbeddingModels changed [object Object],[object Object],[object Object],[object Object],[object Object],[object Object]  (src/assets/js/store/textInference.ts:287)
+15:11:21.721 LOG   renderer activeEmbeddingModel changed ChristianAzinn/bge-small-en-v1.5-gguf/bge-small-en-v1.5.Q8_0.gguf  (src/assets/js/store/textInference.ts:356)
+15:11:21.723 LOG   renderer llmModels changed [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]  (src/assets/js/store/textInference.ts:257)
+15:11:21.723 LOG   renderer activeModel changed unsloth/Qwen3.5-9B-GGUF/Qwen3.5-9B-Q4_K_M.gguf  (src/assets/js/store/textInference.ts:339)
+15:11:21.723 LOG   renderer llmEmbeddingTypeModels [object Proxy],[object Proxy],[object Proxy],[object Proxy],[object Proxy],[object Proxy]  (src/assets/js/store/textInference.ts:262)
+15:11:21.723 LOG   renderer llmEmbeddingModels changed [object Object],[object Object],[object Object],[object Object],[object Object],[object Object]  (src/assets/js/store/textInference.ts:287)
+15:11:21.723 LOG   renderer activeEmbeddingModel changed ChristianAzinn/bge-small-en-v1.5-gguf/bge-small-en-v1.5.Q8_0.gguf  (src/assets/js/store/textInference.ts:356)
+15:11:21.726 LOG   renderer Loading settings for active preset [object Proxy]  (src/assets/js/store/textInference.ts:1177)
+15:11:21.726 LOG   renderer Loading settings for preset Assistant [object Proxy]  (src/assets/js/store/textInference.ts:1184)
+15:11:21.726 LOG   main     [electron-backend] selecting device
+15:11:21.728 LOG   renderer llmModels changed [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]  (src/assets/js/store/textInference.ts:257)
+15:11:21.728 LOG   renderer Loading system prompt from saved settings You are a helpful AI assistant with access to tools. You can call functions to generate images, synthesize speech audio from scripts (Qwen3 TTS), process workflows, and perform various tasks. Use tools when appropriate to help the user accomplish their goals.  (src/assets/js/store/textInference.ts:1328)
+15:11:21.728 LOG   renderer [textInference] loadSettingsForActivePreset: preset="Assistant" requiresPhison=undefined supportsPhisonKmRag=true savedRagMode=standard resolvedRagMode=standard ragMode=standard  (src/assets/js/store/textInference.ts:1374)
+15:11:21.728 LOG   renderer activeModel changed OpenVINO/Qwen3.5-9B-int4-ov  (src/assets/js/store/textInference.ts:339)
+15:11:21.728 LOG   renderer activeEmbeddingModel changed OpenVINO/bge-base-en-v1.5-fp16-ov  (src/assets/js/store/textInference.ts:356)
+15:11:21.730 LOG   renderer init i18n: en-US  (src/assets/js/store/i18n.ts:101)
+15:11:21.838 LOG   main     [electron-backend] Updated local settings: {"productMode":"studio"}
+15:11:21.878 LOG   main     [langchain] message received in langchain utility process {
+                              data: {
+                                type: 'init',
+                                embeddingCachePath: 'C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\WebUI\\node_modules\\electron\\dist\\resources\\embeddingCache'
+                              },
+                              ports: []
+                            }
+15:11:21.878 LOG   main     [langchain] Initializing Langchain process
+                            Langchain process initialized
+15:11:22.655 LOG   main     [qwen3-tts-backend] Service qwen3-tts-backend isSetUp: true (lockOk=true, torchOk=true)
+15:11:22.655 LOG   main     [qwen3-tts-backend] getting info: current status is notYetStarted
+15:11:22.655 LOG   main     [qwen3-tts-backend] Service qwen3-tts-backend isSetUp: true
+15:11:22.661 LOG   main     [whisper-backend] Service whisper-backend isSetUp: true (lockOk=true, torchOk=true)
+15:11:22.661 LOG   main     [whisper-backend] getting info: current status is notYetStarted
+15:11:22.661 LOG   main     [whisper-backend] Service whisper-backend isSetUp: true
+15:11:22.891 LOG   main     [qwen3-tts-backend] Service qwen3-tts-backend isSetUp: true (lockOk=true, torchOk=true)
+15:11:22.925 LOG   main     [whisper-backend] Service whisper-backend isSetUp: true (lockOk=true, torchOk=true)
+15:11:22.925 LOG   main     [apiServiceRegistry] Not auto-starting on-demand backend(s) (started when requested): qwen3-tts-backend, whisper-backend
+15:11:22.925 LOG   main     [apiServiceRegistry] Starting 4 backend service(s) automatically:
+15:11:22.925 LOG   main     [apiServiceRegistry] ai-backend, openvino-backend, comfyui-backend, llamacpp-backend
+15:11:22.940 LOG   main     [openvino-backend] Detecting OpenVINO devices using Python script
+15:11:22.949 LOG   main     [comfyui-backend] Detecting XPU devices with torch.xpu (single probe)
+15:11:22.949 LOG   main     [comfyui-backend] Spawning command C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\.venv\Scripts\python.exe -c 
+                            import sys
+                            
+                            try:
+                                import torch
+                                # Intel-torch builds that predate native XPU (torch < 2.5) only register the
+                                # torch.xpu backend after intel_extension_for_pytorch is imported. On
+                                # native-XPU torch the import is unnecessary and its absence is non-fatal.
+                                try:
+                                    import intel_extension_for_pytorch  # noqa: F401
+                                except Exception:
+                                    pass
+                            
+                                if not hasattr(torch, "xpu"):
+                                    print("Error detecting XPU devices: torch has no xpu backend")
+                                    sys.exit(1)
+                            
+                                device_count = torch.xpu.device_count()
+                                # Sentinel so the TS side can tell "torch loaded cleanly and saw 0 devices"
+                                # (a definitive negative) apart from a probe that never produced output.
+                                print(f"DEVICE_COUNT={device_count}")
+                            
+                                for i in range(device_count):
+                                    try:
+                                        device_name = torch.xpu.get_device_name(i)
+                                    except Exception:
+                                        device_name = "Unknown Device"
+                                    try:
+                                        uuid = str(getattr(torch.xpu.get_device_properties(i), "uuid", "") or "")
+                                    except Exception:
+                                        uuid = ""
+                                    print(f"{i}|{device_name}|{uuid}")
+                            except Exception as e:
+                                print(f"Error detecting XPU devices: {str(e)}")
+                                sys.exit(1)
+15:11:22.949 LOG   main     [comfyui-backend] Extra env: {"PATH":"C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\ComfyUI\\.venv\\Library\\bin;C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\portable-git\\cmd;C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\WebUI\\node_modules\\.bin;C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\node_modules\\.bin;C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\node_modules\\.bin;C:\\Users\\zsomb\\Desktop\\node_modules\\.bin;C:\\Users\\zsomb\\node_modules\\.bin;C:\\Users\\node_modules\\.bin;C:\\node_modules\\.bin;C:\\Program Files\\nodejs\\node_modules\\npm\\node_modules\\@npmcli\\run-script\\lib\\node-gyp-bin;C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;C:\\Program Files (x86)\\Common Files\\Oracle\\Java\\java8path;C:\\Program Files (x86)\\Common Files\\Oracle\\Java\\javapath;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\OpenSSH\\;C:\\Program Files\\dotnet\\;C:\\Program Files\\Vagrant\\bin;C:\\Program Files\\nodejs\\;C:\\Program Files\\WSL\\;C:\\Program Files\\Git\\cmd;C:\\Users\\zsomb\\.local\\bin;C:\\Users\\zsomb\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\zsomb\\.lmstudio\\bin;C:\\Users\\zsomb\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\Users\\zsomb\\AppData\\Roaming\\npm;C:\\Program Files\\nodejs\\;;C:\\Users\\zsomb\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;C:\\Users\\zsomb\\AppData\\Local\\Programs\\Microsoft VS Code\\bin\\copilot-shim;c:\\Users\\zsomb\\AppData\\Roaming\\Code\\User\\globalStorage\\github.copilot-chat\\debugCommand;C:\\Users\\zsomb\\AppData\\Local\\Programs\\Microsoft VS Code\\bin\\copilot-shim","PYTHONNOUSERSITE":"true","SYCL_ENABLE_DEFAULT_CONTEXTS":"1","SYCL_CACHE_PERSISTENT":"1","PYTHONIOENCODING":"utf-8","HF_ENDPOINT":"https://huggingface.co","AIPG_OPENVINO_IMAGE_MODELS":"C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\models\\openvino-image","PIP_CONFIG_FILE":"nul","UV_NO_CONFIG":"1","UV_TORCH_BACKEND":"xpu","AIPG_LOOPBACK_TOKEN":"ad215702fc043dcb1daf21fc0585bf9e3bc89806281df1dde6188632e00f3ca0"}
+15:11:22.954 LOG   main     [llamacpp-backend] Detecting devices using llama-server --list-devices
+15:11:23.116 LOG   main     [ai-backend] getting info: current status is starting
+15:11:23.116 LOG   main     [ai-backend]  trying to start ai-backend python API
+15:11:23.154 LOG   renderer [qwen3-tts-backend] Service qwen3-tts-backend isSetUp: true (lockOk=true, torchOk=true)  (src/App.vue:115)
+15:11:23.154 LOG   renderer [whisper-backend] Service whisper-backend isSetUp: true (lockOk=true, torchOk=true)  (src/App.vue:115)
+15:11:23.163 LOG   main     [uv.check.service] Found UV executable at C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\build\resources\uv.exe
+15:11:23.164 LOG   main     [uv.check.service] Checking backend: service with ["sync","--check","--directory","C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\","--project","service"]
+15:11:23.164 LOG   main     [uv.check.service] Spawning UV process with command: sync --check --directory C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ --project service
+15:11:23.174 LOG   main     [ai-backend] start() called for ai-backend while a startup is already in progress (status: starting)
+15:11:23.177 LOG   main     [comfyui-backend] applied new comfyUI startup parameters: --lowvram --reserve-vram 6.0
+15:11:23.193 LOG   main     [uv.check.service] UV Error: Would use project environment at: service\.venv
+15:11:23.194 LOG   main     [uv.check.service] UV Error: Resolved 44 packages in 0.79ms
+15:11:23.194 LOG   main     [uv.check.service] UV Error: Found up-to-date lockfile at: service\uv.lock
+15:11:23.200 LOG   main     [uv.check.service] UV Error: Checked 43 packages in 4ms
+                            Would make no changes
+15:11:23.207 LOG   main     [uv.check.service] UV process completed successfully
+15:11:23.207 LOG   main     [ai-backend] Service ai-backend isSetUp: true
+15:11:23.413 LOG   main     [openvino-backend] openvino-backend service ready - model server will start on-demand
+15:11:23.413 LOG   main     [comfyui-backend] getting info: current status is starting
+15:11:23.413 LOG   main     [comfyui-backend]  trying to start comfyui-backend python API
+15:11:23.414 LOG   main     [comfyui-backend] Checking if comfyUI directories exist
+15:11:23.414 LOG   main     [comfyui-backend] Checking if comfyUI directories exist: true
+15:11:23.415 LOG   main     [git] Spawning command C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\portable-git\cmd\git.exe -C C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI describe --tags --exact-match
+15:11:23.415 LOG   main     [git] Extra env: {"GIT_SSL_CAINFO":"C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\portable-git\\mingw64\\etc\\ssl\\certs\\ca-bundle.crt","PIP_CONFIG_FILE":"nul"}
+15:11:23.457 LOG   main     [git] v0.34.0
+15:11:23.461 LOG   main     [comfyui-backend] comfyUI version v0.34.0 detected
+15:11:23.462 LOG   main     [uv.check-details.ComfyUI] Found UV executable at C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\build\resources\uv.exe
+15:11:23.463 LOG   main     [uv.check-details.ComfyUI] Venv interpreter exists at C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\.venv\Scripts\python.exe
+15:11:23.463 LOG   main     [uv.check-details.ComfyUI] Checking backend with details: ComfyUI with ["sync","--check","--inexact","--output-format","json","--directory","C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\","--project","ComfyUI","--extra","xpu"]
+15:11:23.463 LOG   main     [uv.check-details.ComfyUI] Spawning UV process with command: sync --check --inexact --output-format json --directory C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ --project ComfyUI --extra xpu
+15:11:23.627 LOG   main     [uv.check-details.ComfyUI] UV Error: Resolved 276 packages in 132ms
+15:11:23.660 LOG   main     [uv.check-details.ComfyUI] UV Error: Checked 222 packages in 16ms
+                            Would make no changes
+15:11:23.660 LOG   main     [uv.check-details.ComfyUI] UV: {
+                              "schema": {
+                                "version": "preview"
+                              },
+                              "target": "project",
+                              "project": {
+                                "path": "C:/Users/zsomb/Desktop/ai-playground-fork/AI-Playground/ComfyUI",
+                                "workspace": {
+                                  "path": "C:/Users/zsomb/Desktop/ai-playground-fork/AI-Playground/ComfyUI"
+                                }
+                              },
+                              "sync": {
+                                "environment": {
+                                  "path": "C:/Users/zsomb/Desktop/ai-playground-fork/AI-Playground/ComfyUI/.venv",
+                                  "python": {
+                                    "path": "C:/Users/zsomb/Desktop/ai-playground-fork/AI-Playground/ComfyUI/.venv/Scripts/python.exe",
+                                    "version": "3.12.15",
+                                    "implementation": "cpython"
+                                  }
+                                },
+                                "action": "check",
+                                "changes": []
+                              },
+                              "lock": {
+                                "path": "C:/Users/zsomb/Desktop/ai-playground-fork/AI-Playground/ComfyUI/uv.lock",
+                                "action": "check"
+                              },
+                              "dry_run": true
+                            }
+15:11:23.665 LOG   main     [comfyui-backend] Service comfyui-backend venv exists, allowing startup attempt
+15:11:23.970 LOG   main     [llamacpp-backend] detected devices: [
+                              {
+                                "id": "0",
+                                "name": "AMD Radeon(TM) Graphics"
+                              },
+                              {
+                                "id": "1",
+                                "name": "AMD Radeon RX 6400"
+                              },
+                              {
+                                "id": "2",
+                                "name": "Intel(R) Arc(TM) B580 Graphics"
+                              },
+                              {
+                                "id": "cpu",
+                                "name": "CPU"
+                              }
+                            ]
+15:11:24.040 LOG   main     [comfyui-tools] Set ComfyUI-Manager security_level=strong at C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\custom_nodes\ComfyUI-Manager\config.ini
+15:11:24.041 LOG   main     [comfyui-tools] Set ComfyUI-Manager security_level=strong at C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\user\default\ComfyUI-Manager\config.ini
+15:11:24.042 LOG   main     [comfyui-tools] Set ComfyUI-Manager security_level=strong at C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\user\__manager\config.ini
+15:11:24.072 LOG   main     [llamacpp-backend] llamacpp-backend service ready - model servers will start on-demand
+15:11:24.072 LOG   main     [apiServiceRegistry] Service llamacpp-backend started with status: running
+15:11:24.073 LOG   main     [ai-backend]  * Serving Flask app 'web_api'
+                             * Debug mode: off
+15:11:24.077 LOG   main     [ai-backend] INFO:werkzeug:WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+                             * Running on http://127.0.0.1:59000
+                            INFO:werkzeug:Press CTRL+C to quit
+15:11:24.082 LOG   main     [openvino-backend] Python detected devices: [{"id":"CPU","name":"AMD Ryzen 7 7700X 8-Core Processor             "},{"id":"GPU","name":"Intel(R) Arc(TM) B580 Graphics (dGPU)"}]
+15:11:24.083 LOG   main     [openvino-backend] Available LLM devices: [
+                              {
+                                "id": "AUTO",
+                                "name": "Auto select device",
+                                "selected": true
+                              },
+                              {
+                                "id": "CPU",
+                                "name": "AMD Ryzen 7 7700X 8-Core Processor             ",
+                                "selected": false
+                              },
+                              {
+                                "id": "GPU",
+                                "name": "Intel(R) Arc(TM) B580 Graphics (dGPU)",
+                                "selected": false
+                              }
+                            ]
+15:11:24.083 LOG   main     [openvino-backend] Available STT devices: [
+                              {
+                                "id": "AUTO",
+                                "name": "Auto select device",
+                                "selected": false
+                              },
+                              {
+                                "id": "CPU",
+                                "name": "AMD Ryzen 7 7700X 8-Core Processor             ",
+                                "selected": true
+                              },
+                              {
+                                "id": "GPU",
+                                "name": "Intel(R) Arc(TM) B580 Graphics (dGPU)",
+                                "selected": false
+                              }
+                            ]
+15:11:24.194 LOG   main     [apiServiceRegistry] Service openvino-backend started with status: running
+15:11:24.196 LOG   main     [ai-backend] INFO:werkzeug:127.0.0.1 - - [07/Nov/2026 16:11:24] "OPTIONS /api/checkModelAlreadyLoaded HTTP/1.1" 204 -
+15:11:24.198 LOG   main     [ai-backend] INFO:werkzeug:127.0.0.1 - - [07/Nov/2026 16:11:24] "POST /api/checkModelAlreadyLoaded HTTP/1.1" 401 -
+15:11:24.202 LOG   main     [ai-backend] INFO:root:checking model openai/whisper-base of type STT in backend openvino
+15:11:24.202 LOG   main     [ai-backend] INFO:werkzeug:127.0.0.1 - - [07/Nov/2026 16:11:24] "POST /api/checkModelAlreadyLoaded HTTP/1.1" 200 -
+15:11:24.240 LOG   main     [llamacpp-backend] applied new LlamaCPP startup parameters: --gpu-layers 999 --log-prefix --jinja --no-mmap -fa on --cache-ram 16384
+15:11:24.240 LOG   main     [llamacpp-backend] applied new LlamaCPP build variant: standard
+15:11:24.293 LOG   main     [ai-backend] INFO:werkzeug:127.0.0.1 - - [07/Nov/2026 16:11:24] "GET /healthy HTTP/1.1" 200 -
+15:11:24.294 LOG   main     [ai-backend] received response: 200
+15:11:24.294 LOG   main     [ai-backend] ai-backend server startup complete after 1.0797131 seconds
+15:11:24.294 LOG   main     [ai-backend] started server ai-backend on http://127.0.0.1:59000
+15:11:24.294 LOG   main     [ai-backend] getting info: current status is running
+15:11:24.294 LOG   main     [apiServiceRegistry] Service ai-backend started with status: running
+15:11:24.724 LOG   main     [llamacpp-backend] probeInstalledVersionInDir: , version: 0.3.0-dev (build 10666, commit 4e97ac86e)
+                            built with Clang 20.1.8 for Windows x86_64
+                            , b10666
+15:11:25.030 LOG   main     [comfyui-backend] DEVICE_COUNT=1
+                            0|Intel(R) Arc(TM) B580 Graphics|86800be2-0000-0000-0300-000000000000
+15:11:25.396 LOG   main     [whisper-backend] device probe: [list_devices] xpu: is_available=True device_count=1
+                            [list_devices] xpu:0 -> Intel(R) Arc(TM) B580 Graphics
+15:11:25.396 LOG   main     [whisper-backend] detected Whisper devices: [{"id":"xpu:0","name":"Intel(R) Arc(TM) B580 Graphics"},{"id":"cpu","name":"CPU"}]
+15:11:25.397 LOG   main     [whisper-backend] getting info: current status is notYetStarted
+15:11:25.417 LOG   main     [qwen3-tts-backend] device probe: [list_devices] xpu: is_available=True device_count=1
+                            [list_devices] xpu:0 -> Intel(R) Arc(TM) B580 Graphics
+15:11:25.417 LOG   main     [qwen3-tts-backend] detected TTS devices: [{"id":"xpu:0","name":"Intel(R) Arc(TM) B580 Graphics"},{"id":"cpu","name":"CPU"}]
+15:11:25.417 LOG   main     [qwen3-tts-backend] getting info: current status is notYetStarted
+15:11:25.445 LOG   main     [comfyui-backend] Device detection result: DEVICE_COUNT=1
+                            0|Intel(R) Arc(TM) B580 Graphics|86800be2-0000-0000-0300-000000000000
+15:11:25.446 LOG   main     [comfyui-backend] detected devices: [
+                              {
+                                "id": "0",
+                                "name": "Intel(R) Arc(TM) B580 Graphics",
+                                "uuid": "86800be2-0000-0000-0300-000000000000"
+                              }
+                            ]
+15:11:25.446 LOG   main     [comfyui-backend] getting info: current status is starting
+15:11:25.446 LOG   main     [comfyui-backend] starting comfyui with {"parameters":["main.py","--port","49000","--preview-method","auto","--output-directory","C:\\Users\\zsomb\\Documents\\AI-Playground\\media","--lowvram","--reserve-vram","6.0","--enable-cors-header","http://localhost:25413"],"additionalEnvVariables":{"PATH":"C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\ComfyUI\\.venv\\Library\\bin;C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\portable-git\\cmd;C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\service\\.venv\\bin;C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\service\\.venv\\Scripts;C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\service\\.venv\\Library\\bin;C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\WebUI\\node_modules\\.bin;C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\node_modules\\.bin;C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\node_modules\\.bin;C:\\Users\\zsomb\\Desktop\\node_modules\\.bin;C:\\Users\\zsomb\\node_modules\\.bin;C:\\Users\\node_modules\\.bin;C:\\node_modules\\.bin;C:\\Program Files\\nodejs\\node_modules\\npm\\node_modules\\@npmcli\\run-script\\lib\\node-gyp-bin;C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;C:\\Program Files (x86)\\Common Files\\Oracle\\Java\\java8path;C:\\Program Files (x86)\\Common Files\\Oracle\\Java\\javapath;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\OpenSSH\\;C:\\Program Files\\dotnet\\;C:\\Program Files\\Vagrant\\bin;C:\\Program Files\\nodejs\\;C:\\Program Files\\WSL\\;C:\\Program Files\\Git\\cmd;C:\\Users\\zsomb\\.local\\bin;C:\\Users\\zsomb\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\zsomb\\.lmstudio\\bin;C:\\Users\\zsomb\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\Users\\zsomb\\AppData\\Roaming\\npm;C:\\Program Files\\nodejs\\;;C:\\Users\\zsomb\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;C:\\Users\\zsomb\\AppData\\Local\\Programs\\Microsoft VS Code\\bin\\copilot-shim;c:\\Users\\zsomb\\AppData\\Roaming\\Code\\User\\globalStorage\\github.copilot-chat\\debugCommand;C:\\Users\\zsomb\\AppData\\Local\\Programs\\Microsoft VS Code\\bin\\copilot-shim;C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\portable-git\\cmd","PYTHONNOUSERSITE":"true","SYCL_ENABLE_DEFAULT_CONTEXTS":"1","SYCL_CACHE_PERSISTENT":"1","PYTHONIOENCODING":"utf-8","HF_ENDPOINT":"https://huggingface.co","AIPG_OPENVINO_IMAGE_MODELS":"C:\\Users\\zsomb\\Desktop\\ai-playground-fork\\AI-Playground\\models\\openvino-image","PIP_CONFIG_FILE":"nul","UV_NO_CONFIG":"1","UV_TORCH_BACKEND":"xpu","AIPG_LOOPBACK_TOKEN":"f2e3e4fdf38d5b1a98cb7c58ff610a3ebe9a112d4d49a7ad4f6ec5e1a2ab6ef5","ONEAPI_DEVICE_SELECTOR":"level_zero:0"}}
+15:11:25.552 LOG   main     [comfyui-backend] start() called for comfyui-backend while a startup is already in progress (status: starting)
+15:11:25.966 LOG   main     [comfyui-backend] [INFO] setup plugin alembic.autogenerate.schemas
+15:11:25.967 LOG   main     [comfyui-backend] [INFO] setup plugin alembic.autogenerate.tables
+                            [INFO] setup plugin alembic.autogenerate.types
+                            [INFO] setup plugin alembic.autogenerate.constraints
+                            [INFO] setup plugin alembic.autogenerate.defaults
+                            [INFO] setup plugin alembic.autogenerate.comments
+                            [INFO] setup plugin alembic.ext.checkconstraint_byname
+15:11:26.055 WARN  main     [comfyui-backend] [WARNING] Could not autodetect AIMDO implementation, assuming Nvidia
+15:11:26.058 LOG   main     [comfyui-backend] [INFO] Adding extra search path checkpoints C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\checkpoints
+                            [INFO] Adding extra search path loras C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\loras
+15:11:26.058 LOG   main     [comfyui-backend] [INFO] Adding extra search path loras C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\lora
+                            [INFO] Adding extra search path vae C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\vae
+                            [INFO] Adding extra search path text_encoders C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\text_encoders
+                            [INFO] Adding extra search path text_encoders C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\clip
+                            [INFO] Adding extra search path clip_vision C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\clip_vision
+                            [INFO] Adding extra search path geometry_estimation C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\geometry_estimation
+                            [INFO] Adding extra search path background_removal C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\background_removal
+                            [INFO] Adding extra search path style_models C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\style_models
+                            [INFO] Adding extra search path embeddings C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\embeddings
+                            [INFO] Adding extra search path diffusers C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\diffusers
+                            [INFO] Adding extra search path vae_approx C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\vae_approx
+                            [INFO] Adding extra search path controlnet C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\controlnet
+                            [INFO] Adding extra search path controlnet C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\t2i_adapter
+                            [INFO] Adding extra search path gligen C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\gligen
+                            [INFO] Adding extra search path upscale_models C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\upscale_models
+15:11:26.059 LOG   main     [comfyui-backend] [INFO] Adding extra search path upscale_models C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\latent_upscale_models
+                            [INFO] Adding extra search path hypernetworks C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\hypernetworks
+                            [INFO] Adding extra search path photomaker C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\photomaker
+                            [INFO] Adding extra search path classifiers C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\classifiers
+                            [INFO] Adding extra search path model_patches C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\model_patches
+                            [INFO] Adding extra search path audio_encoders C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\audio_encoders
+                            [INFO] Adding extra search path diffusion_models C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\diffusion_models
+                            [INFO] Adding extra search path diffusion_models C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\unet
+                            [INFO] Adding extra search path insightface C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\insightface
+                            [INFO] Adding extra search path facerestore_models C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\facerestore_models
+                            [INFO] Adding extra search path nsfw_detector C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\nsfw_detector
+                            [INFO] Adding extra search path inpaint C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\models\ComfyUI\inpaint
+                            [INFO] Setting output directory to: C:\Users\zsomb\Documents\AI-Playground\media
+15:11:26.395 WARN  main     [comfyui-backend] [WARNING] [ComfyUI-Manager] `python -m pip` not available. Falling back to `uv`.
+15:11:26.465 LOG   main     [comfyui-backend] [INFO] [ComfyUI-Manager] Using `uv` as Python module for pip operations.
+15:11:26.791 LOG   main     [comfyui-backend] [START] Security scan
+                            [DONE] Security scan
+                            ## ComfyUI-Manager: installing dependencies done.
+15:11:26.791 LOG   main     [comfyui-backend] ** ComfyUI startup time: 2026-11-07 16:11:26.790
+                            ** Platform: Windows
+                            ** Python version: 3.12.15 (main, Oct 21 2026, 17:48:33) [MSC v.1944 64 bit (AMD64)]
+                            ** Python executable: C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\.venv\Scripts\python.exe
+                            ** ComfyUI Path:
+15:11:26.791 LOG   main     [comfyui-backend] C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI
+                            ** ComfyUI Base Folder Path:
+15:11:26.795 LOG   main     [comfyui-backend] C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI
+                            ** User directory: C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\user
+                            ** ComfyUI-Manager config path: C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\user\__manager\config.ini
+                            ** Log path: C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\user\comfyui.log
+15:11:26.962 WARN  main     [backend-version] No version found for ai-backend
+15:11:26.962 WARN  main     [backend-version] No version found for home-agent-backend
+15:11:26.962 WARN  main     [backend-version] No version found for qwen3-tts-backend
+15:11:26.962 WARN  main     [backend-version] No version found for whisper-backend
+15:11:26.962 LOG   main     [backend-version] Using local version for llamacpp-backend: {"version":"b10666"}
+15:11:26.962 LOG   main     [backend-version] Using local version for openvino-backend: {"version":"2026.4.0"}
+15:11:26.963 LOG   main     [backend-version] Using local version for comfyui-backend: {"version":"v0.34.0"}
+15:11:26.963 LOG   renderer [vite] hot updated: /src/assets/js/store/backendServices.ts  (@vite/client:937)
+15:11:26.963 LOG   renderer [vite] hot updated: /src/assets/css/index.css  (@vite/client:937)
+15:11:26.970 LOG   main     [comfyui-backend] [INFO] 
+                            Prestartup times for custom nodes:
+15:11:26.973 LOG   main     [comfyui-backend] [INFO]    0.9 seconds: C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\custom_nodes\ComfyUI-Manager
+                            [INFO]
+15:11:30.000 LOG   main     [comfyui-backend] [INFO] Found comfy_kitchen backend hip: {'available': False, 'disabled': False, 'unavailable_reason': 'PyTorch ROCm/HIP runtime not available', 'capabilities': []}
+15:11:30.000 LOG   main     [comfyui-backend] [INFO] Found comfy_kitchen backend cuda: {'available': False, 'disabled': True, 'unavailable_reason': 'CUDA not available on this system', 'capabilities': []}
+                            [INFO] Found comfy_kitchen backend triton: {'available': True, 'disabled': True, 'unavailable_reason': None, 'capabilities': ['adaln', 'apply_rope', 'apply_rope1', 'apply_rope1_', 'apply_rope_', 'apply_rope_split_half', 'apply_rope_split_half1', 'apply_rope_split_half1_', 'apply_rope_split_half_', 'dequantize_nvfp4', 'dequantize_per_tensor_fp8', 'int8_linear', 'na3d', 'quantize_and_rotate_rowwise', 'quantize_int8_rowwise', 'quantize_mxfp8', 'quantize_nvfp4', 'quantize_per_tensor_fp8', 'rms_adaln', 'rms_rope', 'rms_rope1', 'rms_rope1_', 'rms_rope_', 'rms_rope_split_half', 'rms_rope_split_half1', 'rms_rope_split_half1_', 'rms_rope_split_half_', 'w4a8_int8_linear']}
+                            [INFO] Found comfy_kitchen backend eager: {'available': True, 'disabled': False, 'unavailable_reason': None, 'capabilities': ['adaln', 'apply_rope', 'apply_rope1', 'apply_rope1_', 'apply_rope_', 'apply_rope_split_half', 'apply_rope_split_half1', 'apply_rope_split_half1_', 'apply_rope_split_half_', 'convrot_w4a4_linear', 'dequantize_convrot_w4a4_weight', 'dequantize_int8_convrot_weight', 'dequantize_int8_convrot_weight_dtype', 'dequantize_int8_embedding', 'dequantize_int8_simple', 'dequantize_int8_simple_dtype', 'dequantize_mxfp8', 'dequantize_nvfp4', 'dequantize_per_tensor_fp8', 'dequantize_w4a8_int8_weight', 'gemv_awq_w4a16', 'int8_linear', 'na3d', 'prepare_int4_weight_for_int8_linear', 'quantize_and_rotate_rowwise', 'quantize_convrot_w4a4_weight', 'quantize_int8_convrot_weight', 'quantize_int8_rowwise', 'quantize_int8_tensorwise', 'quantize_mxfp8', 'quantize_nvfp4', 'quantize_per_tensor_fp8', 'quantize_svdquant_w4a4', 'quantize_w4a8_int8_weight', 'rms_adaln', 'rms_rope', 'rms_rope1', 'rms_rope1_', 'rms_rope_', 'rms_rope_split_half', 'rms_rope_split_half1', 'rms_rope_split_half1_', 'rms_rope_split_half_', 'rotate_int8_convrot_weight', 'scaled_mm_mxfp8', 'scaled_mm_nvfp4', 'scaled_mm_svdquant_w4a4', 'stochastic_rounding_fp8', 'w4a8_int8_linear']}
+15:11:30.007 LOG   main     [comfyui-backend] [INFO] Checkpoint files will always be loaded safely.
+15:11:30.141 LOG   main     [comfyui-backend] [INFO] Total VRAM 11876 MB, total RAM 31913 MB
+15:11:30.141 LOG   main     [comfyui-backend] [INFO] pytorch version: 2.13.0+xpu
+15:11:30.142 LOG   main     [comfyui-backend] [INFO] Set vram state to: LOW_VRAM
+                            [INFO] Device: xpu:0 Intel(R) Arc(TM) B580 Graphics
+15:11:30.178 LOG   main     [comfyui-backend] [INFO] Using pytorch attention
+15:11:32.379 LOG   main     [comfyui-backend] [INFO] Python version: 3.12.15 (main, Oct 21 2026, 17:48:33) [MSC v.1944 64 bit (AMD64)]
+15:11:32.379 LOG   main     [comfyui-backend] [INFO] ComfyUI version: 0.34.0
+15:11:32.380 LOG   main     [comfyui-backend] [INFO] comfy-aimdo version: 0.4.15
+15:11:32.380 LOG   main     [comfyui-backend] [INFO] comfy-kitchen version: 0.2.31
+15:11:32.384 LOG   main     [comfyui-backend] [INFO] comfyui-frontend-package version: 1.49.6
+15:11:32.384 LOG   main     [comfyui-backend] [INFO] comfyui-workflow-templates version: 0.11.48
+                            [INFO] comfyui-embedded-docs version: 0.5.10
+                            [INFO] comfy-kitchen version: 0.2.31
+                            [INFO] comfy-aimdo version: 0.4.15
+15:11:32.386 LOG   main     [comfyui-backend] [INFO] [Prompt Server] web root: C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\.venv\Lib\site-packages\comfyui_frontend_package\static
+15:11:32.387 LOG   main     [comfyui-backend] [INFO] Asset seeder disabled
+15:11:32.860 WARN  main     [comfyui-backend] [WARNING] Traceback (most recent call last):
+                              File "C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\nodes.py", line 2263, in load_custom_node
+                                module_spec.loader.exec_module(module)
+                              File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+                              File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+                              File "C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\comfy_extras\nodes_glsl.py", line 12, in <module>
+                                import comfy_angle
+                            ModuleNotFoundError: No module named 'comfy_angle'
+                            
+                            [WARNING] Cannot import C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\comfy_extras\nodes_glsl.py module for custom nodes: No module named 'comfy_angle'
+15:11:33.566 LOG   main     [comfyui-backend] [INFO] aipg-auth middleware installed (token provisioned via env)
+15:11:33.573 LOG   main     [comfyui-backend] 
+                            ----------------------------------------------------------------------
+15:11:33.573 LOG   main     [comfyui-backend] [ComfyUI-Manager] NOTICE: First update after ComfyUI upgrade detected
+                              - Both legacy and new directories exist.
+                              - Running ComfyUI dependency installation...
+                            ----------------------------------------------------------------------
+15:11:33.609 LOG   main     [comfyui-backend] [ComfyUI-Manager] ComfyUI dependencies installation completed.
+15:11:33.610 LOG   main     [comfyui-backend] 
+                            ----------------------------------------------------------------------
+                            [ComfyUI-Manager] NOTICE: Legacy settings migrated
+                              - Old location: C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\user\default\ComfyUI-Manager
+                              - Backed up to: C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\user\__manager\.legacy-manager-backup
+                              - Please verify and remove the backup when no longer needed.
+                            ----------------------------------------------------------------------
+15:11:33.610 LOG   main     [comfyui-backend] [INFO] ### Loading: ComfyUI-Manager (V3.42)
+15:11:33.611 LOG   main     [comfyui-backend] [INFO] [ComfyUI-Manager] network_mode: public
+                            [INFO] [ComfyUI-Manager] ComfyUI per-queue preview override detected (PR #11261). Manager's preview method feature is disabled. Use ComfyUI's --preview-method CLI option or 'Settings > Execution > Live preview method'.
+15:11:33.731 LOG   main     [comfyui-backend] [INFO] ### ComfyUI Revision: 5822 [12d52794] *DETACHED | Released on '2026-08-25'
+15:11:34.169 LOG   main     [comfyui-backend] [INFO] [ComfyUI-Manager] default cache updated: https://raw.githubusercontent.com/ltdrdata/ComfyUI-Manager/main/alter-list.json
+15:11:34.178 LOG   main     [comfyui-backend] [INFO] [ComfyUI-Manager] default cache updated: https://raw.githubusercontent.com/ltdrdata/ComfyUI-Manager/main/model-list.json
+15:11:34.238 LOG   main     [comfyui-backend] [INFO] [ComfyUI-Manager] default cache updated: https://raw.githubusercontent.com/ltdrdata/ComfyUI-Manager/main/github-stats.json
+15:11:34.370 LOG   main     [comfyui-backend] [INFO] [ComfyUI-Manager] default cache updated: https://raw.githubusercontent.com/ltdrdata/ComfyUI-Manager/main/extension-node-map.json
+15:11:34.441 LOG   main     [comfyui-backend] [INFO] [ComfyUI-Manager] default cache updated: https://raw.githubusercontent.com/ltdrdata/ComfyUI-Manager/main/custom-node-list.json
+15:11:34.960 LOG   main     [comfyui-backend] [INFO] 
+                            Import times for custom nodes:
+15:11:34.961 LOG   main     [comfyui-backend] [INFO]    0.0 seconds: C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\custom_nodes\websocket_image_save.py
+                            [INFO]    0.0 seconds: C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\custom_nodes\aipg-auth
+                            [INFO]    0.0 seconds: C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\custom_nodes\OpenVINOImageUpscale
+                            [INFO]    0.0 seconds: C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\custom_nodes\OpenAICompatibleImageGen
+                            [INFO]    0.6 seconds: C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\custom_nodes\ComfyUI-Manager
+                            [INFO]    0.8 seconds: C:\Users\zsomb\Desktop\ai-playground-fork\AI-Playground\ComfyUI\custom_nodes\SafetyChecker
+                            [INFO] 
+                            [WARNING] WARNING: some comfy_extras/ nodes did not import correctly. This may be because they are missing some dependencies.
+                            
+                            [WARNING] IMPORT FAILED: nodes_glsl.py
+                            [WARNING] 
+                            This issue might be caused by new missing dependencies added the last time you updated ComfyUI.
+                            [WARNING] Please do a: pip install -r requirements.txt
+                            [WARNING]
+15:11:34.971 LOG   main     [comfyui-backend] [INFO] Context impl SQLiteImpl.
+15:11:34.971 LOG   main     [comfyui-backend] [INFO] Will assume non-transactional DDL.
+15:11:35.024 LOG   main     [comfyui-backend] [INFO] Using RAM pressure cache.
+15:11:35.025 LOG   main     [comfyui-backend] [INFO] Starting server
+15:11:35.025 LOG   main     [comfyui-backend] [INFO] To see the GUI go to: http://127.0.0.1:49000
+15:11:35.229 LOG   main     [comfyui-backend] received response: 200
+15:11:35.229 LOG   main     [comfyui-backend] comfyui-backend server startup complete after 9.7772258 seconds
+15:11:35.229 LOG   main     [comfyui-backend] started server comfyui-backend on http://127.0.0.1:49000
+15:11:35.229 LOG   main     [comfyui-backend] getting info: current status is running
+15:11:35.229 LOG   main     [apiServiceRegistry] Service comfyui-backend started with status: running
+15:11:45.920 WARN  main     [backend-version] No version found for ai-backend
+15:11:45.920 WARN  main     [backend-version] No version found for home-agent-backend
+15:11:45.920 WARN  main     [backend-version] No version found for qwen3-tts-backend
+15:11:45.920 WARN  main     [backend-version] No version found for whisper-backend
+15:11:45.920 LOG   main     [backend-version] Using local version for llamacpp-backend: {"version":"b10666"}
+15:11:45.920 LOG   main     [backend-version] Using local version for openvino-backend: {"version":"2026.4.0"}
+15:11:45.920 LOG   main     [backend-version] Using local version for comfyui-backend: {"version":"v0.34.0"}
+15:11:45.920 LOG   renderer [vite] hot updated: /src/assets/js/store/backendServices.ts  (@vite/client:937)
+15:11:45.920 LOG   renderer [vite] hot updated: /src/assets/css/index.css  (@vite/client:937)
+15:11:47.447 WARN  main     [backend-version] No version found for ai-backend
+15:11:47.447 WARN  main     [backend-version] No version found for home-agent-backend
+15:11:47.447 WARN  main     [backend-version] No version found for qwen3-tts-backend
+15:11:47.447 WARN  main     [backend-version] No version found for whisper-backend
+15:11:47.447 LOG   main     [backend-version] Using local version for llamacpp-backend: {"version":"b10666"}
+15:11:47.447 LOG   main     [backend-version] Using local version for openvino-backend: {"version":"2026.4.0"}
+15:11:47.448 LOG   main     [backend-version] Using local version for comfyui-backend: {"version":"v0.34.0"}
+15:11:47.449 LOG   renderer [vite] hot updated: /src/assets/js/store/backendServices.ts  (@vite/client:937)
+15:11:47.449 LOG   renderer [vite] hot updated: /src/assets/css/index.css  (@vite/client:937)

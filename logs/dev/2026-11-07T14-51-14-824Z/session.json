@@ -1,0 +1,16 @@
+{
+  "startedAt": "2026-11-07T14:51:14.824Z",
+  "pid": 43796,
+  "appVersion": "3.2.1-beta",
+  "platform": "win32",
+  "arch": "x64",
+  "electron": "44.9.3",
+  "counts": {
+    "bug": 0,
+    "error": 1,
+    "warning": 14,
+    "noise": 3,
+    "log": 299
+  },
+  "endedCleanly": false
+}
