@@ -9,6 +9,17 @@ export const useUIStore = defineStore('ui', () => {
   // closing it should return the user to exactly the view they were in.
   const showModelManager = ref(false)
 
+  const showMarketplace = ref(false)
+
+  function openMarketplace() {
+    showModelManager.value = false
+    showMarketplace.value = true
+  }
+
+  function closeMarketplace() {
+    showMarketplace.value = false
+  }
+
   function openHistory() {
     showHistory.value = true
   }
@@ -18,6 +29,7 @@ export const useUIStore = defineStore('ui', () => {
   }
 
   function openModelManager() {
+    showMarketplace.value = false
     showModelManager.value = true
   }
 
@@ -32,6 +44,9 @@ export const useUIStore = defineStore('ui', () => {
     showModelManager,
     openModelManager,
     closeModelManager,
+    showMarketplace,
+    openMarketplace,
+    closeMarketplace,
   }
 })
 
