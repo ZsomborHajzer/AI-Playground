@@ -1292,6 +1292,39 @@ Automated coverage: `electron/test/channels/adapters.test.ts` and
 `electron/test/adapters/backends/localWebConfig.test.ts` for the units,
 `e2e/home-agent-local-web.spec.ts` for the whole page in a real browser window.
 
+### Dev session logs (read these first when debugging a dev run)
+
+Every unpackaged run (`npm run dev`) writes one session log under the repo root, in
+`logs/dev/latest/` (gitignored). It holds everything the main process and the DevTools console
+printed (backend and installer output included), plus crashes:
+
+- `summary.md` — **start here.** Issues grouped by fingerprint, bugs first, with counts and
+  first/last time. Rewritten as the run goes, so it is current even after a crash.
+- `issues.jsonl` — one JSON object per bug/error/warning (first 20 of each fingerprint), with
+  `origin` (`main` / `renderer` / `process`), `source`, `location` and, for renderer errors, the
+  parsed `appError` (`severity`, `category`, `code`).
+- `session.log` — every line, with a class column: `BUG` / `ERROR` / `WARN` / `NOISE` / `LOG`.
+- `session.json` — start/end time, app version, counts; `endedCleanly: false` means the run
+  was killed or crashed (a dev-server restart after a main-process edit counts as killed).
+
+Each launch moves the previous `latest/` to a folder named after its start time; the newest 30
+are kept. `AIPG_DEV_LOG=0` turns it off. Code: `electron/observability/devSessionLog.ts`
+(capture + files) and `logClassification.ts` (pure rules, tested in `electron/test/observability/`).
+
+How a line is classed: crashes (uncaught main exceptions, renderer/child process gone, renderer
+`Uncaught …`, the error sink's `global/*` and `vue/component-error` codes, `fatal`) are **bugs**.
+Renderer errors use the severity the error sink prints (`[AppError <severity>] [category] code:` —
+keep `store/errors.ts` and the parser in step). Child processes log stderr at error level, so a
+level the child states itself (`[INFO]`, `[WARNING]`, `ERROR:`) wins, `UV Error:` lines count only
+when uv says `error:`/`warning:`, and other `*-backend` stderr needs error-like wording. Expected
+dev chatter is listed in `KNOWN_NOISE` with a reason; add to it rather than ignoring a summary
+entry, so the summary stays a list of things worth fixing.
+
+**Launching the app from an agent shell inside VS Code:** VS Code exports
+`ELECTRON_RUN_AS_NODE=1` to child processes, which makes Electron run as plain Node and crash
+in `main.js` with `Cannot read properties of undefined (reading 'isPackaged')`. Start it with
+`env -u ELECTRON_RUN_AS_NODE npm run dev`.
+
 ### Tracing agent and chat turns (Laminar)
 
 To judge a change to the agentic system you need the turn's shape, not its final answer:
