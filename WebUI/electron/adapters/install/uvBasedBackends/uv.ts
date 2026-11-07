@@ -517,10 +517,13 @@ export const checkBackendWithDetails = async (
     }
   }
 
-  // Run uv sync --check with JSON output
+  // Run uv sync --check with JSON output. `--inexact`: custom nodes `uv pip install`
+  // their own requirements (e.g. nh3) into this venv, and an exact check reports
+  // those as "would uninstall" — a reinstall can never clear that mismatch.
   const uvCommand = [
     'sync',
     '--check',
+    '--inexact',
     '--output-format',
     'json',
     '--directory',

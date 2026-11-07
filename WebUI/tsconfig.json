@@ -20,6 +20,7 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
+      "@marketplace-shared": ["../marketplace-server/shared/index.ts"],
       "@": ["./src"],
       "@/*": ["./src/*"],
       "electron/*": ["./electron/*"]

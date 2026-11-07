@@ -947,11 +947,14 @@ if (import.meta.hot) {
  */
 const TERMINAL_UPDATE_GRACE_MS = 2000
 
-class BackendServiceSetupProgressListener {
+export class BackendServiceSetupProgressListener {
   isActive: boolean = false
   readonly associatedServiceName: BackendServiceName
   private collectedSetupProgress: SetupProgress[] = []
   private terminalUpdateReceived = false
+  // `terminalUpdateReceived` is reset once a run is consumed, so the watchdog
+  // needs a record that outlives that reset.
+  private settledRunToken = 0
   private installationSuccess: boolean = false
   private lastErrorDetails: ErrorDetails | null = null
   /** Identifies the current install so a late watchdog can't poison the next one. */
@@ -979,7 +982,7 @@ class BackendServiceSetupProgressListener {
    */
   onInvocationSettled(runToken: number, errorMessage?: string) {
     setTimeout(() => {
-      if (runToken !== this.runToken || this.terminalUpdateReceived) return
+      if (runToken !== this.runToken || runToken === this.settledRunToken) return
       console.error(
         `Setup of ${this.associatedServiceName} ended without a terminal progress update`,
         errorMessage,
@@ -1009,6 +1012,7 @@ class BackendServiceSetupProgressListener {
       }
       if (data.status === 'success' || data.status == 'failed') {
         this.terminalUpdateReceived = true
+        this.settledRunToken = this.runToken
         this.isActive = false
         this.installationSuccess = data.status === 'success'
       }

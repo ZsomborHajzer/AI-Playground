@@ -62,6 +62,14 @@
       </button>
       <button
         v-if="globalSetup.loadingState === 'running'"
+        :title="languages.MARKETPLACE_TITLE"
+        :aria-label="languages.MARKETPLACE_OPEN"
+        @click="uiStore.openMarketplace()"
+      >
+        <PuzzlePieceIcon class="size-6 text-foreground"></PuzzlePieceIcon>
+      </button>
+      <button
+        v-if="globalSetup.loadingState === 'running'"
         id="contextual-help-toggle"
         type="button"
         class="flex size-7 items-center justify-center rounded-full border border-border text-sm font-bold text-foreground transition-colors hover:bg-muted"
@@ -252,6 +260,7 @@
          decides, and the download / delete dialogs this view opens must be able
          to appear on top of it. -->
     <ModelManager v-if="uiStore.showModelManager" @close="uiStore.closeModelManager()" />
+    <Marketplace v-if="uiStore.showMarketplace" @close="uiStore.closeMarketplace()" />
     <download-dialog v-show="dialogStore.downloadDialogVisible"></download-dialog>
     <preset-requirements-dialog
       v-show="dialogStore.presetRequirementsDialogVisible"
@@ -354,8 +363,9 @@ import PresetRequirementsDialog from '@/components/PresetRequirementsDialog.vue'
 import InstallationProgressDialog from '@/components/InstallationProgressDialog.vue'
 import MaskEditorDialog from '@/components/MaskEditorDialog.vue'
 import DemoModeIndicator from '@/components/DemoModeIndicator.vue'
-import { CircleStackIcon, ServerStackIcon } from '@heroicons/vue/24/solid'
+import { CircleStackIcon, PuzzlePieceIcon, ServerStackIcon } from '@heroicons/vue/24/solid'
 import ModelManager from '@/views/ModelManager.vue'
+import Marketplace from '@/views/Marketplace.vue'
 import { useColorMode } from '@vueuse/core'
 import { useDemoMode } from './assets/js/store/demoMode.ts'
 import { debugSettingsVisible } from './assets/js/store/debugSettings.ts'

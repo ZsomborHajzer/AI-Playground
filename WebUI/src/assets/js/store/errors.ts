@@ -45,8 +45,13 @@ export const useErrors = defineStore('errors', () => {
     // Technical detail always goes to the console (mirrors prior console.error
     // behavior), except a deliberate user cancellation is benign: log it at debug
     // level so it doesn't read as a failure (and it never toasts, see surface).
+    // The `[AppError <severity>]` prefix is parsed by the dev session log
+    // (electron/observability/logClassification.ts) — keep the two in step.
     const log = error.code === CANCELLED_CODE ? console.debug : console.error
-    log(`[${error.category}] ${error.code}: ${error.technicalMessage}`, error.cause ?? '')
+    log(
+      `[AppError ${error.severity}] [${error.category}] ${error.code}: ${error.technicalMessage}`,
+      error.cause ?? '',
+    )
 
     switch (error.surface) {
       case 'toast':

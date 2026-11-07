@@ -1,0 +1,18 @@
+{
+  "manifestVersion": 1,
+  "id": "aipg.upscale-4x",
+  "name": "Upscale 4x (example)",
+  "version": "1.0.0",
+  "description": "Example workflow plugin: a 4x ESRGAN image upscaler for Image Edit.",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/ZsomborHajzer/AI-Playground",
+  "engines": {
+    "aipg": ">=3.2.0"
+  },
+  "category": "workflows",
+  "tags": ["upscale", "esrgan", "example"],
+  "permissions": ["models", "shell"],
+  "contributes": {
+    "presets": ["presets/*.json"]
+  }
+}

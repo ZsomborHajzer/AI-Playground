@@ -1,0 +1,43 @@
+# Master server VM: the marketplace master behind Caddy (automatic HTTPS).
+#   cp master.env.example master.env   # then edit DOMAIN and MASTER_PUBLIC_URL
+#   docker compose -f docker-compose.master.yml up -d --build
+#   docker compose -f docker-compose.master.yml exec master node master/adminCli.ts <username>
+name: aipg-master
+
+services:
+  master:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: aipg-marketplace:latest
+    command: ['node', 'master/server.ts']
+    env_file: master.env
+    environment:
+      MASTER_DATA_DIR: /data
+      MASTER_PORT: '8080'
+    volumes:
+      - master-data:/data
+    restart: unless-stopped
+    expose:
+      - '8080'
+
+  caddy:
+    image: caddy:2.10.2
+    env_file: master.env
+    environment:
+      UPSTREAM: master:8080
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - master
+    restart: unless-stopped
+
+volumes:
+  master-data:
+  caddy-data:
+  caddy-config:

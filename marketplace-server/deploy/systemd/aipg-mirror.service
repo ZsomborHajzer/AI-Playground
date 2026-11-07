@@ -1,0 +1,30 @@
+# Distribution server without Docker. Same layout as aipg-master.service, plus the
+# master public key at /etc/aipg-mirror/master-public-key.pem.
+#   sudo useradd --system --home /var/lib/aipg-mirror aipg
+#   sudo install -d -o aipg -g aipg /var/lib/aipg-mirror
+#   sudo install -d /etc/aipg-mirror && sudo cp master-public-key.pem /etc/aipg-mirror/
+#   sudo cp mirror.env.example /etc/aipg-mirror.env   # edit it
+#   sudo cp aipg-mirror.service /etc/systemd/system/ && sudo systemctl enable --now aipg-mirror
+[Unit]
+Description=AI Playground marketplace distribution server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aipg
+Group=aipg
+WorkingDirectory=/opt/aipg-marketplace
+EnvironmentFile=/etc/aipg-mirror.env
+Environment=NODE_ENV=production NODE_NO_WARNINGS=1 MIRROR_DATA_DIR=/var/lib/aipg-mirror MIRROR_HOST=127.0.0.1 MIRROR_PORT=8090 MASTER_PUBLIC_KEY_FILE=/etc/aipg-mirror/master-public-key.pem
+ExecStart=/usr/bin/node mirror/server.ts
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/aipg-mirror
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,6 @@
+node_modules/
+data/
+*.aipgx
+.env
+deploy/*.env
+deploy/master-public-key.pem

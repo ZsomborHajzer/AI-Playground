@@ -1,0 +1,30 @@
+# Master without Docker. Assumes the repo's marketplace-server/ is at /opt/aipg-marketplace
+# with `npm ci --omit=dev` run, Node.js 24 at /usr/bin/node, and a reverse proxy
+# (Caddy or nginx) terminating HTTPS in front of port 8080.
+#   sudo useradd --system --home /var/lib/aipg-master aipg
+#   sudo install -d -o aipg -g aipg /var/lib/aipg-master
+#   sudo cp master.env.example /etc/aipg-master.env   # edit it
+#   sudo cp aipg-master.service /etc/systemd/system/ && sudo systemctl enable --now aipg-master
+[Unit]
+Description=AI Playground marketplace master
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aipg
+Group=aipg
+WorkingDirectory=/opt/aipg-marketplace
+EnvironmentFile=/etc/aipg-master.env
+Environment=NODE_ENV=production NODE_NO_WARNINGS=1 MASTER_DATA_DIR=/var/lib/aipg-master MASTER_HOST=127.0.0.1 MASTER_PORT=8080
+ExecStart=/usr/bin/node master/server.ts
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/aipg-master
+
+[Install]
+WantedBy=multi-user.target

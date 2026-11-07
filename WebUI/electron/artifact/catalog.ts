@@ -185,32 +185,73 @@ function getUserPresetsDir(): string {
   return path.join(app.getPath('documents'), 'AI Playground', 'presets')
 }
 
-let catalogCache: Promise<PresetCatalog> | null = null
+type PluginPresetSource = (reservedNames: Set<string>) => Promise<PresetFile[]>
+
+let catalogCache: Promise<{ catalog: PresetCatalog; pluginFiles: PresetFile[] }> | null = null
+let pluginPresetSource: PluginPresetSource | null = null
 
 /** Drops the memoized catalog; call after any mutation that can change it. */
 export function invalidatePresetCatalog(): void {
   catalogCache = null
 }
 
-/**
- * The catalog main serves itself from, memoized until invalidated. Reads
- * bundled base+mode presets, user presets and (behind the debug gate) the dev
- * dummy workflows.
- */
-export function getPresetCatalog(
-  config: PresetLoadConfig,
-  includeDevPresets: boolean,
-): Promise<PresetCatalog> {
+/** Installed plugins' presets join the catalog; names already taken are reserved. */
+export function setPluginPresetSource(source: PluginPresetSource): void {
+  pluginPresetSource = source
+  catalogCache = null
+}
+
+function presetNames(files: PresetFile[]): Set<string> {
+  const names = new Set<string>()
+  for (const file of files) {
+    try {
+      const name = (JSON.parse(file.content) as { name?: unknown }).name
+      if (typeof name === 'string') names.add(name)
+    } catch {
+      // buildPresetCatalog reports unparsable files
+    }
+  }
+  return names
+}
+
+function loadCatalog(config: PresetLoadConfig, includeDevPresets: boolean) {
   if (!catalogCache) {
     catalogCache = (async () => {
       const [bundled, user] = await Promise.all([
         loadPresetFiles(config),
         readPresetsFromDir(getUserPresetsDir()),
       ])
-      return buildPresetCatalog([...bundled, ...user.values()], { includeDevPresets })
+      const own = [...bundled, ...user.values()]
+      const reserved = presetNames(own)
+      if (includeDevPresets) for (const preset of devPresets) reserved.add(preset.name)
+      const pluginFiles = pluginPresetSource ? await pluginPresetSource(reserved) : []
+      return {
+        catalog: buildPresetCatalog([...own, ...pluginFiles], { includeDevPresets }),
+        pluginFiles,
+      }
     })()
   }
   return catalogCache
+}
+
+/**
+ * The catalog main serves itself from, memoized until invalidated. Reads
+ * bundled base+mode presets, user presets, installed plugins' presets and
+ * (behind the debug gate) the dev dummy workflows.
+ */
+export async function getPresetCatalog(
+  config: PresetLoadConfig,
+  includeDevPresets: boolean,
+): Promise<PresetCatalog> {
+  return (await loadCatalog(config, includeDevPresets)).catalog
+}
+
+/** The plugin preset files in the catalog, so the renderer lists exactly what main runs. */
+export async function getPluginPresetFiles(
+  config: PresetLoadConfig,
+  includeDevPresets: boolean,
+): Promise<PresetFile[]> {
+  return (await loadCatalog(config, includeDevPresets)).pluginFiles
 }
 
 /**
