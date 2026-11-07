@@ -42,7 +42,8 @@ import {
   type LocalSettings,
 } from './kernel/localSettings.ts'
 import { writableConfigFile } from './kernel/userConfig.ts'
-import { appLoggerInstance } from './observability/logger.ts'
+import { appLoggerInstance, redact } from './observability/logger.ts'
+import { startDevSessionLog } from './observability/devSessionLog.ts'
 import {
   aiplaygroundApiServiceRegistry,
   ApiServiceRegistryImpl,
@@ -418,6 +419,25 @@ if (process.platform === 'linux') {
 }
 const singleInstanceLock = app.requestSingleInstanceLock()
 
+// Only the lock holder may rotate `logs/dev/latest`, or a second launch would
+// archive the running session out from under it.
+const devSessionLog =
+  singleInstanceLock && !app.isPackaged && process.env.AIPG_DEV_LOG !== '0'
+    ? startDevSessionLog({
+        root: path.resolve(__dirname, '../../../logs/dev'),
+        redact,
+        meta: {
+          appVersion: app.getVersion(),
+          platform: process.platform,
+          arch: process.arch,
+          electron: process.versions.electron,
+        },
+      })
+    : null
+devSessionLog?.teeConsole(console)
+devSessionLog?.watchProcess(app)
+process.on('exit', () => devSessionLog?.close())
+
 const appLogger = appLoggerInstance
 
 let win: BrowserWindow | null
@@ -767,6 +787,8 @@ async function createWindow() {
     // there the backends are freed in `window-all-closed` instead.
     if (process.platform !== 'darwin') app.quit()
   })
+
+  devSessionLog?.watchWebContents(win.webContents)
 
   // Windows log-off / shutdown / restart. The session cannot be stopped and the
   // OS terminates us within seconds, so aim well below its patience: a partial
