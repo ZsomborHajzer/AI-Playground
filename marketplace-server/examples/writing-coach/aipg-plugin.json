@@ -1,0 +1,18 @@
+{
+  "manifestVersion": 1,
+  "id": "aipg.writing-coach",
+  "name": "Writing Coach (example)",
+  "version": "1.0.0",
+  "description": "Example preset plugin: a chat preset that reviews and improves your writing.",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/ZsomborHajzer/AI-Playground",
+  "engines": {
+    "aipg": ">=3.2.0"
+  },
+  "category": "presets",
+  "tags": ["writing", "editing", "example"],
+  "permissions": [],
+  "contributes": {
+    "presets": ["presets/*.json"]
+  }
+}
