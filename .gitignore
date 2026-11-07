@@ -52,6 +52,7 @@ home-agent/.*id
 # Laminar tracing — local project API keys (dev opt-in); never commit
 WebUI/external/laminar.dev.json
 WebUI/external/laminar.localhost.json
+WebUI/external/marketplace.local.json
 
 # Benchmarking data might be licensed for internal use only and must not be
 # redistributed, so the raw scores stay on the machine that fetched them; only

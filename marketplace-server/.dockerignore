@@ -1,0 +1,9 @@
+node_modules
+data
+test
+examples
+scripts
+deploy
+*.aipgx
+.env
+*.env

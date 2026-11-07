@@ -19,7 +19,8 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "dev:cluster": "node scripts/dev-cluster.ts"
   },
   "dependencies": {
     "@fastify/formbody": "9.0.1",

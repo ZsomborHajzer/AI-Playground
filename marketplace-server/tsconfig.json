@@ -16,5 +16,5 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["shared", "lib", "master", "mirror", "cli", "test", "vitest.config.ts"]
+  "include": ["shared", "lib", "master", "mirror", "cli", "scripts", "test", "vitest.config.ts"]
 }

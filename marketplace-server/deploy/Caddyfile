@@ -1,0 +1,16 @@
+# Shared by both compose files. DOMAIN comes from the .env file; UPSTREAM from the
+# compose file. Caddy obtains and renews the TLS certificate for DOMAIN itself, so
+# the domain's DNS must point at this VM and ports 80/443 must be open.
+{$DOMAIN} {
+	encode zstd gzip
+	request_body {
+		max_size 25MB
+	}
+	reverse_proxy {$UPSTREAM}
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer
+		-Server
+	}
+}
