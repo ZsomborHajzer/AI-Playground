@@ -449,6 +449,20 @@ contextBridge.exposeInMainWorld('electronAPI', {
     listModels: (providerId: string, baseUrl: string, authStyle: string) =>
       invoke('cloudProvider:listModels', providerId, baseUrl, authStyle),
   },
+  // Plugin marketplace: catalog, installs and publishing, all verified in main.
+  marketplace: {
+    getCatalog: () => invoke('marketplace:getCatalog'),
+    listInstalled: () => invoke('marketplace:listInstalled'),
+    install: (id: string) => invoke('marketplace:install', id),
+    installFromPath: (target: string) => invoke('marketplace:installFromPath', target),
+    uninstall: (id: string) => invoke('marketplace:uninstall', id),
+    setEnabled: (id: string, enabled: boolean) => invoke('marketplace:setEnabled', id, enabled),
+    inspectPackage: (target: string) => invoke('marketplace:inspectPackage', target),
+    publish: (target: string) => invoke('marketplace:publish', target),
+    mySubmissions: () => invoke('marketplace:mySubmissions'),
+    setPublisherToken: (token: string) => invoke('marketplace:setPublisherToken', token),
+    getPublisher: () => invoke('marketplace:getPublisher'),
+  },
   // The one whole-object exhaustiveness check: every member of this object must
   // match the manifest-derived ElectronApi exactly (path, args, result) — a
   // channel missing or drifted on any side is a build error here.

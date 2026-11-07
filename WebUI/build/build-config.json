@@ -76,6 +76,10 @@
       "to": "models.json"
     },
     {
+      "from": "external/marketplace.json",
+      "to": "marketplace.json"
+    },
+    {
       "from": "external/model_config.json",
       "to": "model_config.json"
     },

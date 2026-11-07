@@ -19,7 +19,7 @@ const TOKEN_REDACTION = '<TOKEN_REDACTED>'
 const MAX_TOTAL_LOG_SIZE_BYTES = 100 * 1024 * 1024
 const LOG_FILE_PATTERN = /^aip-\d{4}-\d{2}-\d{2}\.log$/
 
-function redact(message: string): string {
+export function redact(message: string): string {
   return message.replace(TOKEN_PATTERN, TOKEN_REDACTION)
 }
 

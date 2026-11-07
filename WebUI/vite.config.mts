@@ -159,6 +159,11 @@ export default defineConfig(({ command, mode }) => {
     ],
     resolve: {
       alias: [
+        // The marketplace's dependency-free shared code (manifest, validator, signatures).
+        {
+          find: '@marketplace-shared',
+          replacement: path.resolve(import.meta.dirname, '../marketplace-server/shared/index.ts'),
+        },
         { find: '@', replacement: path.resolve(import.meta.dirname, './src') },
         // Only the `electron/` prefix — a bare `electron` must stay the npm package.
         {

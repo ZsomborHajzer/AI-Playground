@@ -1,0 +1,45 @@
+# Distribution server VM: one mirror behind Caddy (automatic HTTPS).
+#   cp mirror.env.example mirror.env   # paste MIRROR_ID / MIRROR_SECRET / MASTER_URL from the admin page
+#   save the master public key shown there as ./master-public-key.pem
+#   docker compose -f docker-compose.mirror.yml up -d --build
+name: aipg-mirror
+
+services:
+  mirror:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: aipg-marketplace:latest
+    command: ['node', 'mirror/server.ts']
+    env_file: mirror.env
+    environment:
+      MIRROR_DATA_DIR: /data
+      MIRROR_PORT: '8090'
+      MASTER_PUBLIC_KEY_FILE: /config/master-public-key.pem
+    volumes:
+      - mirror-data:/data
+      - ./master-public-key.pem:/config/master-public-key.pem:ro
+    restart: unless-stopped
+    expose:
+      - '8090'
+
+  caddy:
+    image: caddy:2.10.2
+    env_file: mirror.env
+    environment:
+      UPSTREAM: mirror:8090
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - mirror
+    restart: unless-stopped
+
+volumes:
+  mirror-data:
+  caddy-data:
+  caddy-config:
