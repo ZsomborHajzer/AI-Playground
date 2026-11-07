@@ -1292,6 +1292,41 @@ Automated coverage: `electron/test/channels/adapters.test.ts` and
 `electron/test/adapters/backends/localWebConfig.test.ts` for the units,
 `e2e/home-agent-local-web.spec.ts` for the whole page in a real browser window.
 
+### Plugin marketplace
+
+Plugins are preset packs (`.aipgx` zips with an `aipg-plugin.json`) distributed by the servers
+in [`marketplace-server/`](marketplace-server/README.md): one master that takes uploads, runs
+human review and signs approved releases with Ed25519, and mirrors that receive signed pushes
+and serve apps. Docs: [deploying](docs/marketplace/deploying-servers.md),
+[authoring](docs/marketplace/plugin-authoring-guide.md),
+[spec for AI agents](docs/marketplace/AI-PLUGIN-DEVELOPMENT.md).
+
+- **`marketplace-server/shared/` is the one definition of the format** (manifest and package
+  validation, signing, signed catalog types), and it must stay free of npm dependencies: the
+  app's main process imports it through the `@marketplace-shared` alias (vite, vitest and
+  tsconfig), and the servers run it under Node 24's type stripping (`.ts` import extensions,
+  erasable syntax only). Zip handling stays outside it, `fflate` on the servers, `adm-zip` in
+  the app. **The renderer may only `import type` from it**: its index pulls in `node:crypto`.
+- **Mirrors are untrusted.** The app (`electron/adapters/marketplace/registryClient.ts`)
+  verifies the catalog and every release against the master public key in
+  `external/marketplace.json`, refuses a catalog older than the last one seen
+  (`installed.json` → `lastSeq`), and checks package bytes against the signed sha256. Don't
+  add a code path that installs from a mirror without those checks.
+- **Installed plugins only contribute presets**, through one seam:
+  `electron/plugins/pluginHost.ts` → `setPluginPresetSource` in `artifact/catalog.ts`. The
+  artifact runner's catalog and the renderer's `loadUserPresets` both read the list computed
+  there, so the UI never offers a workflow main cannot run. A plugin preset whose name is
+  already taken (built-in, the user's own, another plugin) is skipped, never shadowed.
+  Plugins live in `Documents/AI-Playground/plugins/`.
+- **No weights at install time.** A plugin's `requiredModels` go through the normal
+  first-use download prompt, like any preset, and the validator rejects bundled weights.
+- Without configured mirrors (`external/marketplace.json` ships empty) the marketplace shows
+  the sample catalog and simulates installs. `npm run dev:cluster -- --seed` in
+  `marketplace-server/` starts a local master and two mirrors on `127.0.0.1:7480–7482` and
+  writes `external/marketplace.local.json` (gitignored), which takes precedence.
+- Server tests: `npm test` in `marketplace-server/` (they run real HTTP servers). App side:
+  `electron/test/plugins/pluginHost.test.ts`.
+
 ### Dev session logs (read these first when debugging a dev run)
 
 Every unpackaged run (`npm run dev`) writes one session log under the repo root, in

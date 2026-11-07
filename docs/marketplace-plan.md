@@ -1,8 +1,20 @@
 # Plugin Marketplace: Plan
 
-Status: **UI preview only.** The marketplace view ships with sample listings and simulated
-installs and uploads. Nothing below is implemented yet. This document is the plan for the
-registry service and for the install pipeline inside the app.
+Status: **superseded by the implementation.** This was the original design. What was built,
+and how to run it, is described in:
+
+- [docs/marketplace/deploying-servers.md](marketplace/deploying-servers.md): the master and
+  distribution servers (`marketplace-server/`).
+- [docs/marketplace/plugin-authoring-guide.md](marketplace/plugin-authoring-guide.md) and
+  [AI-PLUGIN-DEVELOPMENT.md](marketplace/AI-PLUGIN-DEVELOPMENT.md): the plugin format.
+- AGENTS.md → _Plugin marketplace_: where the app-side code lives.
+
+Where the implementation differs from this plan: there is one master that pushes to any
+number of mirrors, instead of a single registry service. **Every** upload is reviewed by a
+person, so _Community_ means "reviewed, unverified publisher" rather than "not reviewed".
+Publishers authenticate with tokens issued by the master, not GitHub OAuth. Storage is SQLite
+and files, not Postgres and object storage. Only preset contributions are accepted so far
+(phase 1 below, served by the phase 2 servers); everything else is still the plan.
 
 ## Goal
 
