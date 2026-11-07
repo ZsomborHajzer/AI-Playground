@@ -1,45 +1,21 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { ArrowUpTrayIcon } from '@heroicons/vue/24/solid'
+import { ArrowPathIcon, ArrowUpTrayIcon, CheckBadgeIcon } from '@heroicons/vue/24/solid'
+import { DocumentArrowUpIcon, FolderOpenIcon } from '@heroicons/vue/24/outline'
 import { Button } from '@/components/ui/button'
-import DropDownNew from '@/components/DropDownNew.vue'
 import { useMarketplace } from '@/assets/js/store/marketplace'
 import { useI18N } from '@/assets/js/store/i18n'
 import * as toast from '@/assets/js/toast'
-import {
-  CATEGORY_LABEL_KEYS,
-  PERMISSION_ICONS,
-  PERMISSION_LABEL_KEYS,
-  STATUS_LABEL_KEYS,
-} from '@/assets/js/marketplace/labels'
-import {
-  PLUGIN_CATEGORIES,
-  PLUGIN_ID_PATTERN,
-  PLUGIN_PERMISSIONS,
-  SEMVER_PATTERN,
-  type PluginCategory,
-  type PluginPermission,
-  type PluginSubmissionDraft,
-  type SubmissionStatus,
-} from '@/assets/js/marketplace/types'
+import { STATUS_LABEL_KEYS } from '@/assets/js/marketplace/labels'
+import type { PackageInspection, SubmissionWire } from '@/types/marketplaceIpc'
 
 const marketplace = useMarketplace()
 const i18nState = useI18N().state
 
-const emptyDraft = (): PluginSubmissionDraft => ({
-  fileName: '',
-  id: '',
-  name: '',
-  category: 'presets',
-  version: '1.0.0',
-  description: '',
-  repository: '',
-  permissions: [],
-  requestVerified: false,
-})
-
-const draft = ref<PluginSubmissionDraft>(emptyDraft())
-const showErrors = ref(false)
+const tokenInput = ref('')
+const savingToken = ref(false)
+const packagePath = ref<string | null>(null)
+const inspection = ref<PackageInspection | null>(null)
 const dragging = ref(false)
 
 const steps = computed(() => [
@@ -49,73 +25,94 @@ const steps = computed(() => [
   i18nState.MARKETPLACE_PUBLISH_STEP_VERIFY,
 ])
 
-const categoryItems = computed(() =>
-  PLUGIN_CATEGORIES.map((category) => ({
-    label: i18nState[CATEGORY_LABEL_KEYS[category]],
-    value: category,
-    active: true,
-  })),
+const signedInAs = computed(() =>
+  marketplace.publisher
+    ? (i18nState.MARKETPLACE_SIGNED_IN_AS ?? '')
+        .replace('{name}', marketplace.publisher.name)
+        .replace('{id}', marketplace.publisher.id)
+    : '',
 )
 
-const invalid = computed(() => ({
-  fileName: !draft.value.fileName,
-  name: !draft.value.name.trim(),
-  id: !PLUGIN_ID_PATTERN.test(draft.value.id),
-  version: !SEMVER_PATTERN.test(draft.value.version),
-  description: !draft.value.description.trim(),
-  repository: !!draft.value.repository && !/^https:\/\/\S+$/.test(draft.value.repository),
-}))
+const errors = computed(() => inspection.value?.issues.filter((i) => i.level === 'error') ?? [])
+const warnings = computed(() => inspection.value?.issues.filter((i) => i.level === 'warning') ?? [])
+const readyLabel = computed(() =>
+  inspection.value?.manifest
+    ? (i18nState.MARKETPLACE_PUBLISH_CHECKS_PASSED ?? '')
+        .replace('{id}', inspection.value.manifest.id)
+        .replace('{version}', inspection.value.manifest.version)
+    : '',
+)
+const canSubmit = computed(
+  () => !!marketplace.publisher && !!inspection.value?.ok && !marketplace.publishing,
+)
 
-const valid = computed(() => !Object.values(invalid.value).some(Boolean))
-
-function takeFile(file: File | undefined) {
-  if (!file) return
-  draft.value.fileName = file.name
-  if (!draft.value.name) {
-    draft.value.name = file.name
-      .replace(/\.(aipgx|zip)$/i, '')
-      .replace(/-\d+\.\d+\.\d+.*$/, '')
-      .replace(/[-_]+/g, ' ')
+async function saveToken() {
+  savingToken.value = true
+  try {
+    if (await marketplace.setPublisherToken(tokenInput.value)) tokenInput.value = ''
+  } finally {
+    savingToken.value = false
   }
 }
 
-function onDrop(event: DragEvent) {
+async function choose(path: string | null | undefined) {
+  if (!path) return
+  packagePath.value = path
+  inspection.value = (await marketplace.inspect(path)) ?? null
+}
+
+async function pick(kind: 'file' | 'folder') {
+  const result = await window.electronAPI.showOpenDialog(
+    kind === 'file'
+      ? {
+          properties: ['openFile'],
+          filters: [{ name: i18nState.MARKETPLACE_PACKAGE_FILES, extensions: ['aipgx', 'zip'] }],
+        }
+      : { properties: ['openDirectory'] },
+  )
+  if (result && !result.canceled) await choose(result.filePaths[0])
+}
+
+async function onDrop(event: DragEvent) {
   dragging.value = false
-  takeFile(event.dataTransfer?.files[0])
+  const file = event.dataTransfer?.files[0]
+  if (file) await choose(window.electronAPI.getFilePath(file))
 }
 
-function togglePermission(permission: PluginPermission) {
-  const current = draft.value.permissions
-  draft.value.permissions = current.includes(permission)
-    ? current.filter((p) => p !== permission)
-    : [...current, permission]
+async function submit() {
+  if (!packagePath.value) return
+  const submission = await marketplace.publish(packagePath.value)
+  if (!submission) return
+  toast.success(
+    (i18nState.MARKETPLACE_PUBLISH_SUBMITTED ?? '').replace(
+      '{name}',
+      `${submission.pluginId}@${submission.version}`,
+    ),
+  )
+  packagePath.value = null
+  inspection.value = null
 }
 
-function submit() {
-  showErrors.value = true
-  if (!valid.value) return
-  marketplace.submit({ ...draft.value, name: draft.value.name.trim() })
-  toast.success((i18nState.MARKETPLACE_PUBLISH_SUBMITTED ?? '').replace('{name}', draft.value.name))
-  draft.value = emptyDraft()
-  showErrors.value = false
-}
-
-const fieldClass = (bad: boolean) =>
-  `w-full rounded-md border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${
-    showErrors.value && bad ? 'border-red-500' : 'border-border'
-  }`
-
-const statusClass: Record<SubmissionStatus, string> = {
+const statusClass: Record<SubmissionWire['status'], string> = {
   'in-review': 'bg-amber-600/15 text-amber-500',
   published: 'bg-emerald-600/15 text-emerald-500',
   'changes-requested': 'bg-red-500/15 text-red-400',
+  rejected: 'bg-red-500/15 text-red-400',
 }
 </script>
 
 <template>
   <div class="flex min-h-0 flex-1 overflow-y-auto">
-    <div class="mx-auto flex w-full max-w-5xl gap-8 px-8 py-6">
-      <form class="flex min-w-0 flex-1 flex-col gap-4" novalidate @submit.prevent="submit">
+    <div
+      v-if="marketplace.mode !== 'remote'"
+      class="mx-auto my-10 max-w-xl rounded-lg border border-border bg-muted/30 p-6 text-sm"
+    >
+      <h2 class="mb-2 text-lg font-semibold">{{ languages.MARKETPLACE_PUBLISH_TITLE }}</h2>
+      <p class="text-muted-foreground">{{ languages.MARKETPLACE_PUBLISH_NOT_CONFIGURED }}</p>
+    </div>
+
+    <div v-else class="mx-auto flex w-full max-w-5xl gap-8 px-8 py-6">
+      <div class="flex min-w-0 flex-1 flex-col gap-4">
         <div>
           <h2 class="text-xl font-semibold">{{ languages.MARKETPLACE_PUBLISH_TITLE }}</h2>
           <p class="mt-1 text-sm text-muted-foreground">
@@ -137,126 +134,107 @@ const statusClass: Record<SubmissionStatus, string> = {
           </li>
         </ol>
 
-        <label
-          class="flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed px-4 py-6 text-center text-sm transition-colors"
-          :class="
-            dragging
-              ? 'border-primary bg-primary/10'
-              : showErrors && invalid.fileName
-                ? 'border-red-500 hover:bg-muted/40'
-                : 'border-border hover:bg-muted/40'
-          "
+        <section class="rounded-lg border border-border p-4">
+          <template v-if="marketplace.publisher">
+            <div class="flex items-center justify-between gap-3 text-sm">
+              <span class="flex items-center gap-1.5">
+                {{ signedInAs }}
+                <CheckBadgeIcon
+                  v-if="marketplace.publisher.verified"
+                  class="size-4 text-primary"
+                  :aria-label="languages.MARKETPLACE_TRUST_VERIFIED"
+                />
+              </span>
+              <Button size="xs" variant="secondary" @click="marketplace.setPublisherToken('')">
+                {{ languages.MARKETPLACE_SIGN_OUT }}
+              </Button>
+            </div>
+          </template>
+          <form v-else class="flex flex-col gap-2" @submit.prevent="saveToken">
+            <label class="flex flex-col gap-1 text-sm">
+              {{ languages.MARKETPLACE_PUBLISHER_TOKEN }}
+              <input
+                v-model="tokenInput"
+                type="password"
+                autocomplete="off"
+                class="rounded-md border border-border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+            </label>
+            <p class="text-xs text-muted-foreground">
+              {{ languages.MARKETPLACE_PUBLISHER_TOKEN_HINT }}
+            </p>
+            <div>
+              <Button type="submit" size="sm" :disabled="!tokenInput.trim() || savingToken">
+                {{ languages.MARKETPLACE_SAVE_TOKEN }}
+              </Button>
+            </div>
+          </form>
+        </section>
+
+        <div
+          class="flex flex-col items-center gap-3 rounded-lg border-2 border-dashed px-4 py-6 text-center text-sm transition-colors"
+          :class="dragging ? 'border-primary bg-primary/10' : 'border-border'"
           @dragover.prevent="dragging = true"
           @dragleave="dragging = false"
           @drop.prevent="onDrop"
         >
           <ArrowUpTrayIcon class="size-7 text-muted-foreground" />
           <span class="font-medium">{{ languages.MARKETPLACE_PUBLISH_PACKAGE }}</span>
-          <span class="text-xs text-muted-foreground">
-            {{ draft.fileName || languages.MARKETPLACE_PUBLISH_DROP }}
+          <span class="max-w-full break-all text-xs text-muted-foreground">
+            {{ packagePath ?? languages.MARKETPLACE_PUBLISH_DROP }}
           </span>
-          <input
-            type="file"
-            accept=".aipgx,.zip"
-            class="sr-only"
-            :aria-label="languages.MARKETPLACE_PUBLISH_PACKAGE"
-            @change="takeFile(($event.target as HTMLInputElement).files?.[0])"
-          />
-        </label>
-
-        <div class="grid grid-cols-2 gap-4">
-          <label class="flex flex-col gap-1 text-sm">
-            {{ languages.MARKETPLACE_PUBLISH_NAME }}
-            <input v-model="draft.name" :class="fieldClass(invalid.name)" />
-          </label>
-          <label class="flex flex-col gap-1 text-sm">
-            {{ languages.MARKETPLACE_PUBLISH_ID }}
-            <input
-              v-model="draft.id"
-              placeholder="publisher.plugin-name"
-              :class="fieldClass(invalid.id)"
-            />
-          </label>
-          <div class="flex flex-col gap-1 text-sm">
-            <span>{{ languages.MARKETPLACE_CATEGORY }}</span>
-            <div role="group" :aria-label="languages.MARKETPLACE_CATEGORY">
-              <DropDownNew
-                :items="categoryItems"
-                :value="draft.category"
-                @change="(value: string) => (draft.category = value as PluginCategory)"
-              />
-            </div>
+          <div class="flex gap-2">
+            <Button size="sm" variant="secondary" @click="pick('file')">
+              <DocumentArrowUpIcon />
+              {{ languages.MARKETPLACE_CHOOSE_FILE }}
+            </Button>
+            <Button size="sm" variant="secondary" @click="pick('folder')">
+              <FolderOpenIcon />
+              {{ languages.MARKETPLACE_CHOOSE_FOLDER }}
+            </Button>
           </div>
-          <label class="flex flex-col gap-1 text-sm">
-            {{ languages.MARKETPLACE_DETAILS_VERSION }}
-            <input
-              v-model="draft.version"
-              placeholder="1.0.0"
-              :class="fieldClass(invalid.version)"
-            />
-          </label>
         </div>
 
-        <label class="flex flex-col gap-1 text-sm">
-          {{ languages.MARKETPLACE_PUBLISH_DESCRIPTION }}
-          <textarea
-            v-model="draft.description"
-            rows="2"
-            maxlength="160"
-            :class="fieldClass(invalid.description)"
-          />
-        </label>
-
-        <label class="flex flex-col gap-1 text-sm">
-          {{ languages.MARKETPLACE_DETAILS_REPOSITORY }}
-          <input
-            v-model="draft.repository"
-            placeholder="https://github.com/…"
-            :class="fieldClass(invalid.repository)"
-          />
-        </label>
-
-        <fieldset class="flex flex-col gap-2">
-          <legend class="mb-1 text-sm">{{ languages.MARKETPLACE_PUBLISH_PERMISSIONS }}</legend>
-          <div class="flex flex-wrap gap-2">
-            <button
-              v-for="permission in PLUGIN_PERMISSIONS"
-              :key="permission"
-              type="button"
-              :aria-pressed="draft.permissions.includes(permission)"
-              class="flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs"
-              :class="
-                draft.permissions.includes(permission)
-                  ? 'border-primary bg-primary/15 text-foreground'
-                  : 'border-border text-muted-foreground hover:bg-muted'
-              "
-              @click="togglePermission(permission)"
-            >
-              <component :is="PERMISSION_ICONS[permission]" class="size-4" />
-              {{ languages[PERMISSION_LABEL_KEYS[permission]] }}
-            </button>
-          </div>
-        </fieldset>
-
-        <label class="flex items-center gap-2 text-sm">
-          <input v-model="draft.requestVerified" type="checkbox" class="accent-primary" />
-          {{ languages.MARKETPLACE_PUBLISH_REQUEST_VERIFIED }}
-        </label>
-
-        <p v-if="showErrors && !valid" role="alert" class="text-sm text-red-400">
-          {{ languages.MARKETPLACE_PUBLISH_INVALID }}
-        </p>
+        <section v-if="inspection" class="flex flex-col gap-2 text-sm" aria-live="polite">
+          <p v-if="inspection.ok" class="font-medium text-emerald-500">{{ readyLabel }}</p>
+          <p v-else role="alert" class="font-medium text-red-400">
+            {{ languages.MARKETPLACE_PUBLISH_CHECKS_FAILED }}
+          </p>
+          <p v-if="inspection.presets.length" class="text-muted-foreground">
+            {{ languages.MARKETPLACE_PRESETS_INCLUDED }}:
+            {{ inspection.presets.map((p) => p.name).join(', ') }}
+          </p>
+          <ul class="flex flex-col gap-1">
+            <li v-for="(issue, i) in errors" :key="`e${i}`" class="text-red-400">
+              <code class="text-xs">{{ issue.path ?? issue.code }}</code> — {{ issue.message }}
+            </li>
+            <li v-for="(issue, i) in warnings" :key="`w${i}`" class="text-amber-500">
+              <code class="text-xs">{{ issue.path ?? issue.code }}</code> — {{ issue.message }}
+            </li>
+          </ul>
+        </section>
 
         <div>
-          <Button type="submit">
+          <Button :disabled="!canSubmit" @click="submit">
             <ArrowUpTrayIcon />
             {{ languages.MARKETPLACE_PUBLISH_SUBMIT }}
           </Button>
         </div>
-      </form>
+      </div>
 
       <section class="w-80 shrink-0" :aria-label="languages.MARKETPLACE_SUBMISSIONS">
-        <h3 class="mb-3 text-sm font-semibold">{{ languages.MARKETPLACE_SUBMISSIONS }}</h3>
+        <div class="mb-3 flex items-center justify-between">
+          <h3 class="text-sm font-semibold">{{ languages.MARKETPLACE_SUBMISSIONS }}</h3>
+          <Button
+            v-if="marketplace.publisher"
+            size="xs"
+            variant="ghost"
+            :aria-label="languages.MARKETPLACE_REFRESH"
+            @click="marketplace.loadSubmissions()"
+          >
+            <ArrowPathIcon />
+          </Button>
+        </div>
         <p v-if="marketplace.submissions.length === 0" class="text-sm text-muted-foreground">
           {{ languages.MARKETPLACE_NO_SUBMISSIONS }}
         </p>
@@ -268,9 +246,9 @@ const statusClass: Record<SubmissionStatus, string> = {
           >
             <div class="flex items-start justify-between gap-2">
               <div class="min-w-0">
-                <p class="truncate text-sm font-medium">{{ submission.name }}</p>
-                <p class="truncate text-xs text-muted-foreground">
-                  {{ submission.id }} · {{ submission.version }}
+                <p class="truncate text-sm font-medium">{{ submission.pluginId }}</p>
+                <p class="text-xs text-muted-foreground">
+                  {{ submission.version }} · {{ submission.createdAt.slice(0, 10) }}
                 </p>
               </div>
               <span
@@ -280,9 +258,11 @@ const statusClass: Record<SubmissionStatus, string> = {
                 {{ languages[STATUS_LABEL_KEYS[submission.status]] }}
               </span>
             </div>
-            <p class="mt-1 text-xs text-muted-foreground">
-              {{ languages[CATEGORY_LABEL_KEYS[submission.category]] }} ·
-              {{ submission.submittedAt }}
+            <p
+              v-if="submission.reviewNote"
+              class="mt-2 whitespace-pre-line text-xs text-muted-foreground"
+            >
+              {{ submission.reviewNote }}
             </p>
           </li>
         </ul>

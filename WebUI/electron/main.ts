@@ -61,11 +61,18 @@ import { WhisperBackendService } from './adapters/backends/whisperBackendService
 import { LLAMACPP_DEFAULT_PARAMETERS } from './adapters/backends/llamaCppBackendService'
 import { filterPartnerPresets, updateIntelPresets } from './adapters/updateIntelPresets.ts'
 import {
+  getPluginPresetFiles,
   invalidatePresetCatalog,
   loadPresetFiles,
   readPresetsFromDir,
+  setPluginPresetSource,
   type PresetLoadConfig,
 } from './artifact/catalog'
+import { loadMarketplaceServers } from './adapters/marketplace/registryClient'
+import { createPluginHost } from './plugins/pluginHost'
+import { createPublisherTokenStore } from './persist/pluginFiles'
+import { getPluginsDir } from './persist/userDataPaths'
+import { buildMarketplaceRegistry } from './kernel/registries/marketplace'
 import {
   probeFreedesktopSecretService,
   shouldForceBasicPasswordStore,
@@ -1587,6 +1594,23 @@ function initEventHandle() {
   // ── Cloud Mode provider API keys ────────────────────────────────────────
   registerInvokeHandlers(buildCloudProviderRegistry({ cloudProviderKeyPath, readCloudProviderKey }))
 
+  // ── Plugin marketplace: installed plugins feed the preset catalog ──────
+  const pluginHost = createPluginHost({
+    root: getPluginsDir(),
+    appVersion: app.getVersion(),
+    servers: () => loadMarketplaceServers(externalRes),
+    tokens: createPublisherTokenStore(
+      path.join(app.getPath('userData'), 'marketplace-publisher-token.json'),
+    ),
+    log: {
+      info: (message) => appLogger.info(message, 'marketplace'),
+      warn: (message) => appLogger.warn(message, 'marketplace'),
+    },
+  })
+  setPluginPresetSource((reserved) => pluginHost.presetFiles(reserved))
+  pluginHost.onChange(invalidatePresetCatalog)
+  registerInvokeHandlers(buildMarketplaceRegistry(pluginHost))
+
   // The renderer reports whether it has tracked work in flight; an input to
   // the main-owned close policy (see createWindow's 'close' handler).
   registerSendHandlers(
@@ -1643,6 +1667,11 @@ function initEventHandle() {
     invalidatePresetCatalog,
     loadPresetFiles,
     readPresetsFromDir,
+    pluginPresetFiles: () =>
+      getPluginPresetFiles(
+        getPresetLoadConfig(settings),
+        !app.isPackaged || settings.showDebugSettingsInUI,
+      ),
     resolveModels,
     resolveBackendVersion,
     getGitHubRepoUrl,

@@ -36,7 +36,13 @@ const updatable = computed(() => marketplace.updateAvailable(props.listing.id))
       <div class="flex items-center gap-2">
         <span class="truncate text-sm font-semibold">{{ listing.name }}</span>
         <span
-          v-if="installed && !installed.enabled"
+          v-if="installed?.revoked"
+          class="shrink-0 rounded bg-red-500/15 px-1.5 text-[10px] uppercase text-red-400"
+        >
+          {{ languages.MARKETPLACE_REVOKED }}
+        </span>
+        <span
+          v-else-if="installed && !installed.enabled"
           class="shrink-0 rounded bg-muted px-1.5 text-[10px] uppercase text-muted-foreground"
         >
           {{ languages.MARKETPLACE_DISABLED }}
@@ -65,7 +71,7 @@ const updatable = computed(() => marketplace.updateAvailable(props.listing.id))
             <ArrowDownTrayIcon class="size-3" />
             {{ formatCount(listing.downloads, i18n.langName) }}
           </span>
-          <span class="flex shrink-0 items-center gap-0.5">
+          <span v-if="listing.rating !== undefined" class="flex shrink-0 items-center gap-0.5">
             <StarIcon class="size-3 text-amber-400" />
             {{ listing.rating.toFixed(1) }}
           </span>

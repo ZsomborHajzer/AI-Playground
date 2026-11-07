@@ -44,9 +44,15 @@ const downloadsLabel = computed(() =>
 )
 
 const ratingLabel = computed(() =>
-  (i18nState.MARKETPLACE_RATING ?? '')
-    .replace('{rating}', props.listing.rating.toFixed(1))
-    .replace('{count}', formatCount(props.listing.ratingCount, i18n.langName)),
+  props.listing.rating === undefined
+    ? ''
+    : (i18nState.MARKETPLACE_RATING ?? '')
+        .replace('{rating}', props.listing.rating.toFixed(1))
+        .replace('{count}', formatCount(props.listing.ratingCount ?? 0, i18n.langName)),
+)
+
+const incompatibleHint = computed(() =>
+  (i18nState.MARKETPLACE_INCOMPATIBLE ?? '').replace('{range}', props.listing.compatibility),
 )
 
 const formatDate = (iso: string) =>
@@ -56,25 +62,30 @@ const formatDate = (iso: string) =>
     day: 'numeric',
   })
 
-const details = computed(() => [
-  {
-    label: i18nState.MARKETPLACE_DETAILS_VERSION,
-    value: installed.value
-      ? `${installed.value.version}${installed.value.version !== props.listing.version ? ` → ${props.listing.version}` : ''}`
-      : props.listing.version,
-  },
-  { label: i18nState.MARKETPLACE_DETAILS_UPDATED, value: formatDate(props.listing.updatedAt) },
-  {
-    label: i18nState.MARKETPLACE_DETAILS_SIZE,
-    value:
-      props.listing.sizeKb >= 1024
-        ? `${(props.listing.sizeKb / 1024).toFixed(1)} MB`
-        : `${props.listing.sizeKb} KB`,
-  },
-  { label: i18nState.MARKETPLACE_DETAILS_LICENSE, value: props.listing.license },
-  { label: i18nState.MARKETPLACE_DETAILS_COMPATIBILITY, value: props.listing.compatibility },
-  { label: i18nState.MARKETPLACE_DETAILS_ID, value: props.listing.id },
-])
+const details = computed(() =>
+  [
+    {
+      label: i18nState.MARKETPLACE_DETAILS_VERSION,
+      value: installed.value
+        ? `${installed.value.version}${installed.value.version !== props.listing.version ? ` → ${props.listing.version}` : ''}`
+        : props.listing.version,
+    },
+    { label: i18nState.MARKETPLACE_DETAILS_UPDATED, value: formatDate(props.listing.updatedAt) },
+    {
+      label: i18nState.MARKETPLACE_DETAILS_SIZE,
+      value:
+        props.listing.sizeKb >= 1024
+          ? `${(props.listing.sizeKb / 1024).toFixed(1)} MB`
+          : `${props.listing.sizeKb} KB`,
+    },
+    { label: i18nState.MARKETPLACE_DETAILS_LICENSE, value: props.listing.license },
+    { label: i18nState.MARKETPLACE_DETAILS_COMPATIBILITY, value: props.listing.compatibility },
+    { label: i18nState.MARKETPLACE_DETAILS_ID, value: props.listing.id },
+  ].filter(
+    (row) =>
+      row.value && !(row.label === i18nState.MARKETPLACE_DETAILS_SIZE && !props.listing.sizeKb),
+  ),
+)
 </script>
 
 <template>
@@ -91,11 +102,24 @@ const details = computed(() => [
           <span class="flex items-center gap-1">
             <ArrowDownTrayIcon class="size-4" /> {{ downloadsLabel }}
           </span>
-          <span class="flex items-center gap-1">
+          <span v-if="ratingLabel" class="flex items-center gap-1">
             <StarIcon class="size-4 text-amber-400" /> {{ ratingLabel }}
           </span>
         </div>
         <p class="text-sm">{{ listing.description }}</p>
+        <p
+          v-if="installed?.revoked"
+          role="alert"
+          class="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-400"
+        >
+          {{ languages.MARKETPLACE_REVOKED_NOTICE }} {{ installed.revoked.reason }}
+        </p>
+        <p
+          v-else-if="listing.compatible === false"
+          class="rounded-md border border-amber-600/40 bg-amber-600/10 px-3 py-2 text-sm text-amber-500"
+        >
+          {{ incompatibleHint }}
+        </p>
         <div class="mt-1">
           <PluginActions :listing="listing" />
         </div>
@@ -124,6 +148,12 @@ const details = computed(() => [
       <div role="tabpanel" class="min-w-0 flex-1 px-6 py-5">
         <template v-if="tab === 'overview'">
           <p class="whitespace-pre-line text-sm leading-relaxed">{{ listing.overview }}</p>
+          <div v-if="installed?.presetNames?.length" class="mt-5 text-sm">
+            <p class="mb-1 font-medium">{{ languages.MARKETPLACE_PRESETS_INCLUDED }}</p>
+            <ul class="list-inside list-disc text-muted-foreground">
+              <li v-for="name in installed.presetNames" :key="name">{{ name }}</li>
+            </ul>
+          </div>
           <div
             v-if="listing.models?.length"
             class="mt-5 rounded-lg border border-border bg-muted/30 p-4 text-sm"
@@ -157,10 +187,14 @@ const details = computed(() => [
 
         <template v-else-if="tab === 'permissions'">
           <p
-            v-if="listing.trust === 'community'"
+            v-if="listing.trust !== 'verified'"
             class="mb-4 rounded-md border border-amber-600/40 bg-amber-600/10 px-3 py-2 text-sm text-amber-500"
           >
-            {{ languages.MARKETPLACE_COMMUNITY_HINT }}
+            {{
+              listing.trust === 'local'
+                ? languages.MARKETPLACE_LOCAL_HINT
+                : languages.MARKETPLACE_COMMUNITY_HINT
+            }}
           </p>
           <p
             v-else
@@ -176,11 +210,11 @@ const details = computed(() => [
           <li v-for="entry in listing.changelog" :key="entry.version">
             <p class="text-sm font-medium">
               {{ entry.version }}
-              <span class="ml-2 text-xs font-normal text-muted-foreground">{{
+              <span v-if="entry.date" class="ml-2 text-xs font-normal text-muted-foreground">{{
                 formatDate(entry.date)
               }}</span>
             </p>
-            <p class="text-sm text-muted-foreground">{{ entry.notes }}</p>
+            <p class="whitespace-pre-line text-sm text-muted-foreground">{{ entry.notes }}</p>
           </li>
         </ol>
       </div>

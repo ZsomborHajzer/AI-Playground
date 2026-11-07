@@ -9,7 +9,7 @@ import {
   SparklesIcon,
   XMarkIcon,
 } from '@heroicons/vue/24/solid'
-import { Squares2X2Icon } from '@heroicons/vue/24/outline'
+import { DocumentArrowUpIcon, FolderOpenIcon, Squares2X2Icon } from '@heroicons/vue/24/outline'
 import { Button } from '@/components/ui/button'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import DropDownNew from '@/components/DropDownNew.vue'
@@ -59,7 +59,7 @@ const views = computed<{ id: MarketplaceView; label: string; icon: Component; co
 )
 
 const categoryCount = (category: PluginCategory | 'all') =>
-  marketplace.catalog.filter((l) => category === 'all' || l.category === category).length
+  marketplace.listings.filter((l) => category === 'all' || l.category === category).length
 
 const trustOptions = computed<{ id: PluginTrust | 'all'; label: string }[]>(() => [
   { id: 'all', label: i18nState.MARKETPLACE_TRUST_ALL },
@@ -98,12 +98,28 @@ watch(
   { immediate: true },
 )
 
+async function installFromDisk(kind: 'file' | 'folder') {
+  const result = await window.electronAPI.showOpenDialog(
+    kind === 'file'
+      ? {
+          properties: ['openFile'],
+          filters: [{ name: i18nState.MARKETPLACE_PACKAGE_FILES, extensions: ['aipgx', 'zip'] }],
+        }
+      : { properties: ['openDirectory'] },
+  )
+  if (!result || result.canceled || !result.filePaths[0]) return
+  await marketplace.installFromPath(result.filePaths[0])
+}
+
 function onClose() {
   if (marketplace.pendingConsent) marketplace.cancelInstall()
   else emit('close')
 }
 
-onMounted(() => root.value?.focus())
+onMounted(() => {
+  root.value?.focus()
+  void marketplace.refresh()
+})
 </script>
 
 <template>
@@ -121,6 +137,7 @@ onMounted(() => root.value?.focus())
         <div class="flex items-center gap-3">
           <h1 class="text-lg font-semibold">{{ languages.MARKETPLACE_TITLE }}</h1>
           <span
+            v-if="marketplace.mode === 'sample'"
             class="rounded-full border border-amber-600/50 px-2 py-0.5 text-[10px] font-semibold uppercase text-amber-500"
           >
             {{ languages.MARKETPLACE_PREVIEW }}
@@ -135,9 +152,22 @@ onMounted(() => root.value?.focus())
         </button>
       </header>
 
-      <p class="border-b border-border bg-amber-600/10 px-4 py-2 text-sm text-amber-500">
+      <p
+        v-if="marketplace.mode === 'sample'"
+        class="border-b border-border bg-amber-600/10 px-4 py-2 text-sm text-amber-500"
+      >
         {{ languages.MARKETPLACE_PREVIEW_NOTICE }}
       </p>
+      <div
+        v-else-if="marketplace.catalogError"
+        role="alert"
+        class="flex items-center justify-between gap-4 border-b border-border bg-red-500/10 px-4 py-2 text-sm text-red-400"
+      >
+        <span>{{ languages.MARKETPLACE_ERROR_CATALOG }}</span>
+        <Button size="xs" variant="secondary" @click="marketplace.refresh()">
+          {{ languages.MARKETPLACE_RETRY }}
+        </Button>
+      </div>
 
       <div class="flex min-h-0 flex-1">
         <nav
@@ -252,6 +282,16 @@ onMounted(() => root.value?.focus())
                 "
               />
             </div>
+            <template v-if="marketplace.mode === 'remote' && marketplace.view === 'installed'">
+              <Button size="sm" variant="secondary" @click="installFromDisk('file')">
+                <DocumentArrowUpIcon />
+                {{ languages.MARKETPLACE_INSTALL_FROM_FILE }}
+              </Button>
+              <Button size="sm" variant="secondary" @click="installFromDisk('folder')">
+                <FolderOpenIcon />
+                {{ languages.MARKETPLACE_INSTALL_FROM_FOLDER }}
+              </Button>
+            </template>
             <Button
               v-if="marketplace.view === 'updates' && marketplace.updateCount > 0"
               size="sm"
@@ -276,7 +316,13 @@ onMounted(() => root.value?.focus())
                 @select="marketplace.select(listing.id)"
               />
               <li
-                v-if="marketplace.visible.length === 0"
+                v-if="marketplace.mode === 'loading'"
+                class="px-4 py-10 text-center text-sm text-muted-foreground"
+              >
+                {{ languages.MARKETPLACE_LOADING }}
+              </li>
+              <li
+                v-else-if="marketplace.visible.length === 0"
                 class="px-4 py-10 text-center text-sm text-muted-foreground"
               >
                 {{ emptyMessage }}

@@ -12,7 +12,8 @@ import {
   SwatchIcon,
   WrenchScrewdriverIcon,
 } from '@heroicons/vue/24/outline'
-import type { MarketplaceSort, PluginCategory, PluginPermission, SubmissionStatus } from './types'
+import type { SubmissionWire } from '@/types/marketplaceIpc'
+import type { MarketplaceSort, PluginCategory, PluginPermission } from './types'
 
 export const CATEGORY_LABEL_KEYS: Record<PluginCategory, string> = {
   presets: 'MARKETPLACE_CATEGORY_PRESETS',
@@ -65,8 +66,9 @@ export const SORT_LABEL_KEYS: Record<MarketplaceSort, string> = {
   name: 'MARKETPLACE_SORT_NAME',
 }
 
-export const STATUS_LABEL_KEYS: Record<SubmissionStatus, string> = {
+export const STATUS_LABEL_KEYS: Record<SubmissionWire['status'], string> = {
   'in-review': 'MARKETPLACE_STATUS_IN_REVIEW',
   published: 'MARKETPLACE_STATUS_PUBLISHED',
   'changes-requested': 'MARKETPLACE_STATUS_CHANGES',
+  rejected: 'MARKETPLACE_STATUS_REJECTED',
 }

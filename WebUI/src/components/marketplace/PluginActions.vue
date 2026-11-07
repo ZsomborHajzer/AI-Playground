@@ -13,10 +13,14 @@ const i18nState = useI18N().state
 const installed = computed(() => marketplace.installed[props.listing.id])
 const progress = computed(() => marketplace.busy[props.listing.id])
 const updatable = computed(() => marketplace.updateAvailable(props.listing.id))
+const incompatible = computed(() => props.listing.compatible === false)
 const size = computed(() => (props.compact ? 'xs' : 'sm'))
 
 const updateLabel = computed(() =>
   (i18nState.MARKETPLACE_UPDATE ?? '').replace('{version}', props.listing.version),
+)
+const incompatibleHint = computed(() =>
+  (i18nState.MARKETPLACE_INCOMPATIBLE ?? '').replace('{range}', props.listing.compatibility),
 )
 </script>
 
@@ -24,11 +28,14 @@ const updateLabel = computed(() =>
   <!-- `.stop` throughout: in the list these sit inside a selectable row. -->
   <div class="flex items-center gap-2">
     <Button v-if="progress !== undefined" :size="size" disabled class="min-w-24" aria-live="polite">
-      {{ languages.MARKETPLACE_INSTALLING }} {{ Math.round(progress * 100) }}%
+      {{ languages.MARKETPLACE_INSTALLING }}
+      <template v-if="progress >= 0">{{ Math.round(progress * 100) }}%</template>
     </Button>
     <template v-else-if="!installed">
       <Button
         :size="size"
+        :disabled="incompatible"
+        :title="incompatible ? incompatibleHint : undefined"
         :aria-label="`${languages.COM_INSTALL} ${listing.name}`"
         @click.stop="marketplace.requestInstall(listing.id)"
       >
@@ -39,6 +46,7 @@ const updateLabel = computed(() =>
       <Button
         v-if="updatable"
         :size="size"
+        :disabled="incompatible"
         :aria-label="`${updateLabel} – ${listing.name}`"
         @click.stop="marketplace.update(listing.id)"
       >
@@ -46,6 +54,7 @@ const updateLabel = computed(() =>
       </Button>
       <template v-if="!compact">
         <Button
+          v-if="!installed.revoked"
           variant="secondary"
           :size="size"
           @click.stop="marketplace.setEnabled(listing.id, !installed.enabled)"

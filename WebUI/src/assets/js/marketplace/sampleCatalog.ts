@@ -1,6 +1,6 @@
 // Sample listings standing in for the registry until it exists. Publishers other
 // than the AI Playground team are fictional.
-import type { InstalledPlugin, PluginListing, PluginPublisher, PluginSubmission } from './types'
+import type { InstalledPlugin, PluginListing, PluginPublisher } from './types'
 
 const team: PluginPublisher = { id: 'aipg', name: 'AI Playground Team', verified: true }
 const pixelForge: PluginPublisher = { id: 'pixelforge', name: 'PixelForge Studio', verified: true }
@@ -293,20 +293,4 @@ export const SAMPLE_INSTALLED: InstalledPlugin[] = [
   { id: 'aipg.anime-illustration-pack', version: '1.3.2', enabled: true },
   { id: 'nordlys.aurora-theme', version: '1.0.2', enabled: false },
   { id: 'lumen.prompt-library', version: '2.3.0', enabled: true },
-]
-
-export const SAMPLE_SUBMISSIONS: PluginSubmission[] = [
-  {
-    fileName: 'sunset-presets-0.2.0.aipgx',
-    id: 'me.sunset-presets',
-    name: 'Sunset Presets',
-    category: 'presets',
-    version: '0.2.0',
-    description: 'Golden-hour photography presets.',
-    repository: 'https://github.com/example/sunset-presets',
-    permissions: [],
-    requestVerified: false,
-    submittedAt: '2026-11-02',
-    status: 'published',
-  },
 ]

@@ -65,6 +65,7 @@ import type {
   setLastChatBackendLoadActive,
 } from '../../chat/chatReadiness'
 import type {
+  PresetFile,
   PresetLoadConfig,
   invalidatePresetCatalog,
   loadPresetFiles,
@@ -150,6 +151,8 @@ export type CoreDeps = {
   invalidatePresetCatalog: typeof invalidatePresetCatalog
   loadPresetFiles: typeof loadPresetFiles
   readPresetsFromDir: typeof readPresetsFromDir
+  /** Presets of enabled marketplace plugins, minus any whose name is already taken. */
+  pluginPresetFiles: () => Promise<PresetFile[]>
   resolveModels: typeof resolveModels
   resolveBackendVersion: typeof resolveBackendVersion
   getGitHubRepoUrl: typeof getGitHubRepoUrl
@@ -1478,7 +1481,7 @@ export function buildCoreInvokeRegistry(deps: CoreDeps) {
         const userDataPath = app.getPath('documents')
         const presetsPath = path.join(userDataPath, 'AI Playground', 'presets')
         const presets = await deps.readPresetsFromDir(presetsPath)
-        return [...presets.values()]
+        return [...presets.values(), ...(await deps.pluginPresetFiles())]
       } catch (error) {
         deps.appLogger.error(`Failed to load user presets: ${error}`, 'electron-backend')
         return []

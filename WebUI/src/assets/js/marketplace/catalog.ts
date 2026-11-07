@@ -35,7 +35,11 @@ export function filterCatalog(
   return rows.sort((a, b) => {
     switch (filters.sort) {
       case 'rating':
-        return b.rating - a.rating || b.ratingCount - a.ratingCount
+        return (
+          (b.rating ?? 0) - (a.rating ?? 0) ||
+          (b.ratingCount ?? 0) - (a.ratingCount ?? 0) ||
+          b.downloads - a.downloads
+        )
       case 'recent':
         return b.updatedAt.localeCompare(a.updatedAt)
       case 'name':

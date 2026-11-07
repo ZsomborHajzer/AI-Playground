@@ -34,6 +34,14 @@ import type { RagDocumentSection } from './ragDocumentIpc'
 import type { BackendLaunchSettings, BackendVersionWire } from './preferencesIpc'
 import type { SpeechSynthesisRequest } from './speechIpc'
 import type {
+  InstalledPluginWire,
+  MarketplaceCatalog,
+  MarketplaceResult,
+  PackageInspection,
+  PublisherInfo,
+  SubmissionWire,
+} from './marketplaceIpc'
+import type {
   McpServerConfig,
   McpServerInfo,
   McpStatus,
@@ -1721,6 +1729,83 @@ export const CHANNELS = {
       messageId?: number
     }>,
     member: 'homeAgent.channel.send' as const,
+  },
+
+  // ── Plugin marketplace (servers in marketplace-server/) ──
+
+  /** The verified catalog from the first configured mirror that answers; `configured: false` without servers. */
+  'marketplace:getCatalog': {
+    kind: 'invoke',
+    owner: 'main',
+    args: [] as const,
+    result: null as unknown as MarketplaceCatalog,
+  },
+  /** Plugins installed in this profile, with their presets and any revocation. */
+  'marketplace:listInstalled': {
+    kind: 'invoke',
+    owner: 'main',
+    args: [] as const,
+    result: null as unknown as InstalledPluginWire[],
+  },
+  /** Download, verify against the master signature, unpack and enable one plugin (latest version). */
+  'marketplace:install': {
+    kind: 'invoke',
+    owner: 'main',
+    args: [] as unknown as readonly [string],
+    result: null as unknown as MarketplaceResult<{ installed: InstalledPluginWire }>,
+  },
+  /** Install an unsigned `.aipgx` or plugin folder from disk, for plugin authors testing their work. */
+  'marketplace:installFromPath': {
+    kind: 'invoke',
+    owner: 'main',
+    args: [] as unknown as readonly [string],
+    result: null as unknown as MarketplaceResult<{ installed: InstalledPluginWire }>,
+  },
+  'marketplace:uninstall': {
+    kind: 'invoke',
+    owner: 'main',
+    args: [] as unknown as readonly [string],
+    result: null as unknown as IpcMutationResult,
+  },
+  'marketplace:setEnabled': {
+    kind: 'invoke',
+    owner: 'main',
+    args: [] as unknown as readonly [string, boolean],
+    result: null as unknown as IpcMutationResult,
+  },
+  /** Run the master's checks locally on an `.aipgx` or folder before uploading it. */
+  'marketplace:inspectPackage': {
+    kind: 'invoke',
+    owner: 'main',
+    args: [] as unknown as readonly [string],
+    result: null as unknown as PackageInspection,
+  },
+  /** Upload an `.aipgx` or folder to the master for review, with the stored publisher token. */
+  'marketplace:publish': {
+    kind: 'invoke',
+    owner: 'main',
+    args: [] as unknown as readonly [string],
+    result: null as unknown as MarketplaceResult<{ submission: SubmissionWire }>,
+  },
+  'marketplace:mySubmissions': {
+    kind: 'invoke',
+    owner: 'main',
+    args: [] as const,
+    result: null as unknown as MarketplaceResult<{ submissions: SubmissionWire[] }>,
+  },
+  /** Check a publisher token against the master and store it encrypted; an empty token signs out. */
+  'marketplace:setPublisherToken': {
+    kind: 'invoke',
+    owner: 'main',
+    args: [] as unknown as readonly [string],
+    result: null as unknown as MarketplaceResult<{ publisher: PublisherInfo | null }>,
+  },
+  /** The publisher the stored token belongs to, or null when none is stored or the master is unreachable. */
+  'marketplace:getPublisher': {
+    kind: 'invoke',
+    owner: 'main',
+    args: [] as const,
+    result: null as unknown as PublisherInfo | null,
   },
 
   // ── Kernel stream (infra) — the event push itself stays hand-wired ──

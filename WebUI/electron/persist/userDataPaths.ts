@@ -159,3 +159,6 @@ export const getPermissionGrantsFile = () => path.join(aipgUserDataRoot(), 'perm
 /** Demo-mode permission grants, wiped on exit like demo conversations (§6.1). */
 export const getPermissionGrantsDemoFile = () =>
   getPermissionGrantsFile().replace(/\.json$/, '-demo.json')
+
+/** Installed marketplace plugins: one folder per plugin version, plus `installed.json`. */
+export const getPluginsDir = () => path.join(aipgUserDataRoot(), 'plugins')
